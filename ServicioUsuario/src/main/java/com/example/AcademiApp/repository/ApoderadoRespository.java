@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.AcademiApp.model.Entities.Apoderado;
 
-public interface ApoderadoRepository extends JpaRepository<Apoderado, Integer>{
+public interface ApoderadoRespository extends JpaRepository<Apoderado, Integer>{
    
 }
