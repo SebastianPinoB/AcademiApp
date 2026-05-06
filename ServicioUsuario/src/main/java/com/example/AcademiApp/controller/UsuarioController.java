@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,36 +14,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.AcademiApp.model.Entities.Usuario;
 import com.example.AcademiApp.model.request.ActualizarUsuario;
+import com.example.AcademiApp.model.request.CrearUsuario;
 import com.example.AcademiApp.service.UsuarioService;
 
 @RequestMapping("usuario")
 @RestController
 public class UsuarioController {
-    @Autowired
-    private UsuarioService usuarioService;
+   @Autowired
+   private UsuarioService usuarioService;
 
-    @GetMapping("")
+   @GetMapping("")
    public List<Usuario> obtenerTodosUsuarios() {
-       return usuarioService.obtenerTodos();
+      return usuarioService.obtenerTodos();
    }
 
    @GetMapping("/{idUsuario}")
    public Usuario buscarPorIdUsuario(@PathVariable Integer idUsuario) {
       return usuarioService.obtenerPorId(idUsuario);
    }
-   
-//    @PostMapping("")
-//    public Usuario agregarUsuario(@RequestBody CrearUsuario usuario) {
-//       return usuarioService.crearUsuario(usuario);
-//    }
+
+   @PostMapping("")
+   public Usuario agregarUsuario(@RequestBody CrearUsuario usuario) {
+      return usuarioService.crearUsuario(usuario);
+   }
 
    @PutMapping("/{id}")
-   public Usuario actualizUsuario(@PathVariable Integer id ,@RequestBody ActualizarUsuario nuevo) {
+   public Usuario actualizUsuario(@PathVariable Integer id, @RequestBody ActualizarUsuario nuevo) {
       return usuarioService.actualizarUsuario(id, nuevo);
    }
-   
+
    @DeleteMapping("/{id}")
-   public String eliminarUsuario(@PathVariable Integer id){
+   public String eliminarUsuario(@PathVariable Integer id) {
       return usuarioService.eliminarUsuario(id);
    }
 

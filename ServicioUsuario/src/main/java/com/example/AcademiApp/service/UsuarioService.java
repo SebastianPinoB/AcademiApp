@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.AcademiApp.model.Entities.Usuario;
 import com.example.AcademiApp.model.request.ActualizarUsuario;
+import com.example.AcademiApp.model.request.CrearUsuario;
 import com.example.AcademiApp.repository.UsuarioRepository;
 
 @Service
@@ -46,6 +47,21 @@ public class UsuarioService {
     // return usuarioRepository.save(nuevoUsuario);
     // }
 
+    public Usuario crearUsuario(CrearUsuario nuevo){
+        Usuario usuario = new Usuario();
+        usuario.setUsu_email(nuevo.getUsu_email());
+        usuario.setUsu_pass(nuevo.getUsu_pass());
+        usuario.setUsu_numrun(nuevo.getUsu_numrun());
+        usuario.setUsu_dvrun(nuevo.getUsu_dvrun());
+        usuario.setUsu_nombre(nuevo.getUsu_nombre());
+        usuario.setUsu_snombre(nuevo.getUsu_snombre());
+        usuario.setUsu_appaterno(nuevo.getUsu_appaterno());
+        usuario.setUsu_apmaterno(nuevo.getUsu_apmaterno());
+        usuario.setUsu_dir(nuevo.getUsu_dir());
+        
+        return usuarioRepository.save(usuario);
+    }
+
     public String eliminarUsuario(int idUsuario) {
         if (usuarioRepository.existsById(idUsuario)) {
             usuarioRepository.deleteById(idUsuario);
@@ -64,6 +80,7 @@ public class UsuarioService {
             // validarlo
             usuario.setUsu_email(nuevo.getUsu_email());
             usuario.setUsu_pass(nuevo.getUsu_pass());
+            usuario.setUsu_dir(nuevo.getUsu_dir());
             return usuarioRepository.save(usuario);
         }
     }

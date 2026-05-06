@@ -24,5 +24,18 @@ public class Usuario {
     private int usu_numrun;
     @Column(nullable = false)
     private char usu_dvrun;
+    @Column(nullable = false)
+    private String usu_dir;
+    @Column(nullable = false)
+    private String usu_nombre;
+
+    private String usu_snombre;
+
+    @Column(nullable = false)
+    private String usu_appaterno;
+    @Column(nullable = false)
+    private String usu_apmaterno;
+    
+    //Poner roles en este microservicio
 
 }

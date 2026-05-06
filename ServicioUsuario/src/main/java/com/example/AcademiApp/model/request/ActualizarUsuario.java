@@ -10,4 +10,9 @@ public class ActualizarUsuario {
     private String usu_email;
     @NotBlank
     private String usu_pass;
+    @NotBlank
+    private String usu_dir;
+
+    private char usu_snombre;
+    private char usu_nombre;
 }
