@@ -1,6 +1,5 @@
 package com.example.AcademiApp.model.request;
 
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +14,7 @@ public record RegistroEstudianteRequest(
     String password,
 
     @NotNull
-    Integer numRun,
+    Integer numrun,
 
     @NotNull
     Character dvRun,
@@ -31,6 +30,8 @@ public record RegistroEstudianteRequest(
     @NotBlank
     String apellidoMaterno,
 
-    String direccion
+    String direccion,
+
+    String parentesco
 
 ) {}

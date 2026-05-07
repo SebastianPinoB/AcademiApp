@@ -19,9 +19,10 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int usu_id;
 
+    
     private String usu_email;
     private String usu_pass;
-    private int usu_numrun;
+    private int numrun;
     private char usu_dvrun;
     private String usu_dir;
     private String usu_nombre;
