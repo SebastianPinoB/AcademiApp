@@ -8,11 +8,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.AcademiApp.model.Entities.Apoderado;
+import com.example.AcademiApp.model.Entities.Directivo;
+import com.example.AcademiApp.model.Entities.Docente;
 import com.example.AcademiApp.model.Entities.Estudiante;
+import com.example.AcademiApp.model.Entities.Inspector;
+import com.example.AcademiApp.model.request.RegistroDirectivoRequest;
+import com.example.AcademiApp.model.request.RegistroDocenteRequest;
 import com.example.AcademiApp.model.request.RegistroEstudianteRequest;
+import com.example.AcademiApp.model.request.RegistroInspectorRequest;
 import com.example.AcademiApp.model.request.RegistroRequest;
 import com.example.AcademiApp.repository.ApoderadoRespository;
+import com.example.AcademiApp.repository.DirectivoRespository;
+import com.example.AcademiApp.repository.DocenteRepository;
 import com.example.AcademiApp.repository.EstudianteRepository;
+import com.example.AcademiApp.repository.FuncionarioRepository;
+import com.example.AcademiApp.repository.InspectorRespository;
 
 import jakarta.transaction.Transactional;
 
@@ -24,6 +34,15 @@ public class RegistroService {
 
    @Autowired
    private ApoderadoRespository apoderadoRespository;
+
+   @Autowired
+   private DocenteRepository docenteRepository;
+   @Autowired
+   private InspectorRespository inspectorRespository;
+   @Autowired
+   private DirectivoRespository directivoRespository;
+   @Autowired
+   private FuncionarioRepository funcionarioRepository;
 
    // Crea usuarios y apoderados
    @Transactional
@@ -95,7 +114,7 @@ public class RegistroService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Apoderado no encontrado"));
    }
 
-   //Actualizar
+   // Actualizar
    @Transactional
    public void actualizarEstudiante(int id, RegistroEstudianteRequest datosNuevos) {
       Estudiante est = estudianteRepository.findById(id)
@@ -143,4 +162,80 @@ public class RegistroService {
       estudianteRepository.deleteById(id);
    }
 
+   // ------------------- Funcionario
+
+   // Registro
+   @Transactional
+   public void registrarDocente(RegistroDocenteRequest req) {
+      validarDuplicadoFuncionario(req.numrun());
+
+      Docente docente = new Docente();
+      docente.setUsu_email(req.email());
+      docente.setUsu_pass(req.password());
+      docente.setNumrun(req.numrun());
+      docente.setUsu_dvrun(req.dvRun());
+      docente.setUsu_nombre(req.nombre());
+      docente.setUsu_snombre(req.segundoNombre());
+      docente.setUsu_apmaterno(req.apellidoPaterno());
+      docente.setUsu_apmaterno(req.apellidoMaterno());
+      docente.setUsu_dir(req.direccion());
+
+      docente.setFunci_titulo(req.titulo());
+      docente.setDocen_espec(req.especialidad());
+
+      docenteRepository.save(docente);
+   }
+
+   @Transactional
+   public void registrarDirectivo(RegistroDirectivoRequest req) {
+      validarDuplicadoFuncionario(req.numrun());
+
+      Directivo directivo = new Directivo();
+      directivo.setUsu_email(req.email());
+      directivo.setUsu_pass(req.password());
+      directivo.setNumrun(req.numrun());
+      directivo.setUsu_dvrun(req.dvRun());
+      directivo.setUsu_nombre(req.nombre());
+      directivo.setUsu_snombre(req.segundoNombre());
+      directivo.setUsu_apmaterno(req.apellidoPaterno());
+      directivo.setUsu_apmaterno(req.apellidoMaterno());
+      directivo.setUsu_dir(req.direccion());
+
+      directivo.setFunci_titulo(req.titulo());
+      directivo.setDirect_cargo(req.cargoDirectivo());
+
+      directivoRespository.save(directivo);
+
+   }
+
+   @Transactional
+   public void registrarInspector(RegistroInspectorRequest req) {
+      validarDuplicadoFuncionario(req.numrun());
+
+      Inspector inspector = new Inspector();
+
+      inspector.setUsu_email(req.email());
+      inspector.setUsu_pass(req.password());
+      inspector.setNumrun(req.numrun());
+      inspector.setUsu_dvrun(req.dvRun());
+      inspector.setUsu_nombre(req.nombre());
+      inspector.setUsu_snombre(req.segundoNombre());
+      inspector.setUsu_apmaterno(req.apellidoPaterno());
+      inspector.setUsu_apmaterno(req.apellidoMaterno());
+      inspector.setUsu_dir(req.direccion());
+      inspector.setFunci_titulo(req.titulo());
+
+      inspector.setInspec_nivel(req.nivel());
+
+      inspectorRespository.save(inspector);
+
+   }
+
+   // --- MÉTODOS DE APOYO (Privados) ---
+
+   private void validarDuplicadoFuncionario(int numrun) {
+      if (funcionarioRepository.existsByNumrun(numrun)) {
+         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El RUN ya pertenece a un funcionario.");
+      }
+   }
 }
