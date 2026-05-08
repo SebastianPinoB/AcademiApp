@@ -1,7 +1,12 @@
 package com.example.AcademiApp.model.request;
 
+import java.util.List;
+
+import com.example.AcademiApp.model.request.direccion.DireccionRequest;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record RegistroEstudianteRequest(
@@ -30,8 +35,10 @@ public record RegistroEstudianteRequest(
     @NotBlank
     String apellidoMaterno,
 
-    String direccion,
+    @NotBlank
+    String parentesco,
 
-    String parentesco
+    @NotEmpty(message = "Debe ingresar al menos una dirección")
+    List<DireccionRequest> direcciones // <--- CAMBIO: Ahora es una lista
 
 ) {}

@@ -1,6 +1,11 @@
 package com.example.AcademiApp.model.request;
 
+import java.util.List;
+
+import com.example.AcademiApp.model.request.direccion.DireccionRequest;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record RegistroFuncionarioRequest(
@@ -19,9 +24,11 @@ public record RegistroFuncionarioRequest(
     String apellidoPaterno,
     @NotBlank
     String apellidoMaterno,
-    String direccion,
     
     // Campos específicos de funcionario
     @NotBlank 
-    String titulo
+    String titulo,
+
+    @NotEmpty(message = "Debe ingresar al menos una dirección")
+    List<DireccionRequest> direcciones // <--- CAMBIO: Ahora es una lista
 ) {}

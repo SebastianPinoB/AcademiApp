@@ -11,14 +11,13 @@ import com.example.AcademiApp.model.Entities.Apoderado;
 import com.example.AcademiApp.model.Entities.Estudiante;
 import com.example.AcademiApp.model.request.RegistroDirectivoRequest;
 import com.example.AcademiApp.model.request.RegistroDocenteRequest;
-import com.example.AcademiApp.model.request.RegistroEstudianteRequest;
 import com.example.AcademiApp.model.request.RegistroInspectorRequest;
 import com.example.AcademiApp.model.request.RegistroRequest;
+import com.example.AcademiApp.model.response.EstudianteResponse;
 import com.example.AcademiApp.service.RegistroService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -43,7 +42,7 @@ public class RegistroController {
    }
 
    @GetMapping("/alumno/{id}")
-   public ResponseEntity<Estudiante> obtenerAlumno(@PathVariable int id) {
+   public ResponseEntity<EstudianteResponse> obtenerAlumno(@PathVariable int id) {
       return ResponseEntity.ok(registroService.obtenerEstudiante(id));
    }
 
@@ -52,28 +51,15 @@ public class RegistroController {
       return ResponseEntity.ok(registroService.obtenerTodosApoderados());
    }
 
-   @GetMapping("/apoderado/{id}")
-   public ResponseEntity<Apoderado> obtenerApoderado(@PathVariable int id) {
-      return ResponseEntity.ok(registroService.buscarApoderado(id));
-   }
 
    // Editar Estudiante
    @PutMapping("/alumno/{id}")
-   public ResponseEntity<String> editarAlumno(@PathVariable int id, @RequestBody RegistroEstudianteRequest request) {
-      registroService.actualizarEstudiante(id, request);
-      return ResponseEntity.ok("Estudiante actualizado con éxito");
-   }
+   public ResponseEntity<String> actualizarAlumnoYApoderado(@PathVariable("id") int id,
+         @RequestBody RegistroRequest datosNuevos) {
 
-   @PutMapping("/apoderado/{id}")
-   public ResponseEntity<String> editarApoderado(@PathVariable int id, @RequestBody RegistroEstudianteRequest request) {
-      registroService.actualizarApoderado(id, request);
-      return ResponseEntity.ok("Apoderado actualizado con éxito");
-   }
+      registroService.actualizarAlumnoYApoderado(id, datosNuevos);
 
-   @DeleteMapping("/alumno/{id}")
-   public ResponseEntity<String> eliminarAlumno(@PathVariable int id) {
-      registroService.eliminarEstudiante(id);
-      return ResponseEntity.ok("Alumno eliminado (el apoderado permanece en el sistema).");
+      return ResponseEntity.ok("Ficha del alumno y apoderado actualizada correctamente");
    }
 
    // Considerar lo que dice tu compare

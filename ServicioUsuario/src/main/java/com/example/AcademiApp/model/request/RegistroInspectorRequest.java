@@ -1,6 +1,11 @@
 package com.example.AcademiApp.model.request;
 
+import java.util.List;
+
+import com.example.AcademiApp.model.request.direccion.DireccionRequest;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record RegistroInspectorRequest (
@@ -20,8 +25,10 @@ public record RegistroInspectorRequest (
    String apellidoPaterno,
    @NotBlank
    String apellidoMaterno,
-   String direccion,
 
+   @NotEmpty(message = "Debe ingresar al menos una dirección")
+   List<DireccionRequest> direcciones, // <--- CAMBIO: Ahora es una lista
+   
    // Datos de Funcionario
    @NotBlank
    String titulo,
@@ -29,5 +36,7 @@ public record RegistroInspectorRequest (
    // Datos de Inspector
    @NotBlank
    String nivel 
+   
 
-){}
+){
+}

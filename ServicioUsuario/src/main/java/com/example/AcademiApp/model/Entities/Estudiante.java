@@ -1,5 +1,7 @@
 package com.example.AcademiApp.model.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -16,6 +18,7 @@ public class Estudiante extends Usuario {
    
    @ManyToOne
    @JoinColumn(name = "apode_id")
+   @JsonBackReference
    private Apoderado apoderado;
 
 }
