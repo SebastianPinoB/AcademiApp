@@ -36,7 +36,5 @@ public record RegistroInspectorRequest (
    // Datos de Inspector
    @NotBlank
    String nivel 
-   
-
 ){
 }
