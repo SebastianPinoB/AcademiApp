@@ -1,0 +1,38 @@
+### 1. Inscribir nuevo estudiante
+POST http://127.0.0.1:5001/matriculas HTTP/1.1
+Content-Type: application/json
+
+{
+    "usuId": 2,
+    "fecha": "2026-03-01",
+    "estVig": true
+}
+
+### 2. Obtener todas las matrículas
+GET http://127.0.0.1:5001/matriculas HTTP/1.1
+Content-Type: application/json
+
+### 3. Consultar matrícula por ID de Usuario 
+GET http://127.0.0.1:5001/api/matriculas/usuario/10 HTTP/1.1
+Content-Type: application/json
+
+### 4. Renovar matrícula para nuevo periodo
+PUT http://127.0.0.1:5001/api/matriculas/renovar HTTP/1.1
+Content-Type: application/json
+
+{
+    "usu_id": 10,
+    "fecha": "2027-03-01",
+    "estVig": true
+}
+
+### 5. Desvincular o Retiro Formal
+# Se usa PUT o PATCH porque es una baja lógica, no eliminamos el registro [1, 2]
+PUT http://127.0.0.1:5001/api/matriculas/desvincular HTTP/1.1
+Content-Type: application/json
+
+{
+    "usu_id": 10,
+    "fecha": "2026-05-17",
+    "motivo": "Retiro voluntario por cambio de domicilio"
+}
