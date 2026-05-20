@@ -43,4 +43,30 @@ public class AsignaturaService {
    public List<Asignatura> obtenerTodas() {
       return asignaturaRepository.findAll();
    }
+
+   @Transactional
+   public Asignatura actualizarAsignatura(int id, AsignaturaRequest request) {
+      // Verificar que exista la asignatura
+      Asignatura asignaturaExistente = asignaturaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No se puede actualizar: Asignatura no encontrada con ID: " + id));
+
+      // Validación opcional: Si cambia el nombre, verificar que el nuevo no esté duplicado
+      if (!asignaturaExistente.getAsigNombre().equalsIgnoreCase(request.getAsigNombre()) && 
+          asignaturaRepository.existsByAsigNombre(request.getAsigNombre())) {
+         throw new IllegalArgumentException("Ya existe otra asignatura con el nombre '" + request.getAsigNombre() + "'.");
+      }
+
+      asignaturaExistente.setAsigNombre(request.getAsigNombre());
+      asignaturaExistente.setAsigDesc(request.getAsigDesc());
+
+      return asignaturaRepository.save(asignaturaExistente);
+   }
+
+   @Transactional
+   public void eliminarAsignatura(int id) {
+      if (!asignaturaRepository.existsById(id)) {
+         throw new IllegalArgumentException("No se puede eliminar: Asignatura no encontrada con ID: " + id);
+      }
+      asignaturaRepository.deleteById(id);
+   }
 }
