@@ -25,7 +25,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int usu_id;
+    private int usuId;
 
     private String usu_email;
     private String usu_pass;

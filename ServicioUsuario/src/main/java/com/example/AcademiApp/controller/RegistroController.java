@@ -3,6 +3,7 @@ package com.example.AcademiApp.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,10 +15,12 @@ import com.example.AcademiApp.model.request.RegistroDocenteRequest;
 import com.example.AcademiApp.model.request.RegistroInspectorRequest;
 import com.example.AcademiApp.model.request.RegistroRequest;
 import com.example.AcademiApp.model.response.EstudianteResponse;
+import com.example.AcademiApp.model.response.FuncionarioResponse;
 import com.example.AcademiApp.service.RegistroService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -28,69 +31,121 @@ public class RegistroController {
    @Autowired
    private RegistroService registroService;
 
-   // REGISTRO
-   @PostMapping("")
-   public ResponseEntity<String> registrar(@RequestBody RegistroRequest nuevoRegistro) {
-      registroService.registrarAlumno(nuevoRegistro);
-      return ResponseEntity.ok("Registro de apoderado y alumno exitoso.");
+   // ==========================================
+   // 1. ENDPOINTS: ALUMNOS Y APODERADOS
+   // ==========================================
+
+   @PostMapping("/alumno")
+   public ResponseEntity<String> registrarAlumno(@RequestBody RegistroRequest nuevoRegistro) {
+      String respuesta = registroService.registrarAlumno(nuevoRegistro);
+      return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
    }
 
-   // ENDPOINTS ALUMNOS
-   @GetMapping("/alumnos")
-   public ResponseEntity<List<Estudiante>> listarAlumnos() {
-      return ResponseEntity.ok(registroService.obtenerTodosEstudiantes());
+   @GetMapping("/alumno")
+   public ResponseEntity<List<Estudiante>> obtenerTodosEstudiantes() {
+      List<Estudiante> estudiantes = registroService.obtenerTodosEstudiantes();
+      return ResponseEntity.ok(estudiantes);
    }
 
    @GetMapping("/alumno/{id}")
-   public ResponseEntity<EstudianteResponse> obtenerAlumno(@PathVariable int id) {
-      return ResponseEntity.ok(registroService.obtenerEstudiante(id));
+   public ResponseEntity<EstudianteResponse> obtenerEstudiante(@PathVariable int id) {
+      EstudianteResponse estudiante = registroService.obtenerEstudiante(id);
+      return ResponseEntity.ok(estudiante);
    }
 
-   @GetMapping("/apoderados")
-   public ResponseEntity<List<Apoderado>> listarApoderados() {
-      return ResponseEntity.ok(registroService.obtenerTodosApoderados());
-   }
-
-
-   // Editar Estudiante
    @PutMapping("/alumno/{id}")
-   public ResponseEntity<String> actualizarAlumnoYApoderado(@PathVariable("id") int id,
-         @RequestBody RegistroRequest datosNuevos) {
-
+   public ResponseEntity<Void> actualizarAlumnoYApoderado(@PathVariable int id, @RequestBody RegistroRequest datosNuevos) {
       registroService.actualizarAlumnoYApoderado(id, datosNuevos);
-
-      return ResponseEntity.ok("Ficha del alumno y apoderado actualizada correctamente");
+      return ResponseEntity.noContent().build();
    }
 
-   // Considerar lo que dice tu compare
-   // Normalmente, en los métodos PUT (editar),
-   // no se recomienda permitir el cambio de contraseña
-   // (usu_pass) en el mismo formulario que el nombre o el email.
-   // Es mejor tener un método aparte de
-   // "Cambiar contraseña" por seguridad.
-   // Si te fijas, en el código de arriba omití el setUsu_pass
-   // para evitar accidentes.
+   @DeleteMapping("/alumno/{id}")
+   public ResponseEntity<Void> eliminarEstudiante(@PathVariable int id) {
+      registroService.eliminarEstudiante(id);
+      return ResponseEntity.noContent().build();
+   }
 
-   // --------------- FUNCIONARIOS
+   @GetMapping("/apoderado")
+   public ResponseEntity<List<Apoderado>> obtenerTodosApoderados() {
+      List<Apoderado> apoderados = registroService.obtenerTodosApoderados();
+      return ResponseEntity.ok(apoderados);
+   }
 
-   // Endpoint para Docentes
+   // ==========================================
+   // 2. ENDPOINTS: REGISTRO DE FUNCIONARIOS
+   // ==========================================
+
    @PostMapping("/funcionario/docente")
-   public ResponseEntity<String> registrarDocente(@RequestBody RegistroDocenteRequest req) {
+   public ResponseEntity<Void> registrarDocente(@RequestBody RegistroDocenteRequest req) {
       registroService.registrarDocente(req);
-      return ResponseEntity.ok("Docente registrado correctamente");
+      return ResponseEntity.status(HttpStatus.CREATED).build();
    }
 
-   // Endpoint para Inspectores
    @PostMapping("/funcionario/inspector")
-   public ResponseEntity<String> registrarInspector(@RequestBody RegistroInspectorRequest req) {
+   public ResponseEntity<Void> registrarInspector(@RequestBody RegistroInspectorRequest req) {
       registroService.registrarInspector(req);
-      return ResponseEntity.ok("Inspector registrado correctamente");
+      return ResponseEntity.status(HttpStatus.CREATED).build();
    }
 
-   // Endpoint para Directivos
    @PostMapping("/funcionario/directivo")
-   public ResponseEntity<String> registrarDirectivo(@RequestBody RegistroDirectivoRequest req) {
+   public ResponseEntity<Void> registrarDirectivo(@RequestBody RegistroDirectivoRequest req) {
       registroService.registrarDirectivo(req);
-      return ResponseEntity.ok("Directivo registrado correctamente");
+      return ResponseEntity.status(HttpStatus.CREATED).build();
+   }
+
+   // ==========================================
+   // 3. ENDPOINTS: LECTURA DE FUNCIONARIOS (Vistas del Panel)
+   // ==========================================
+
+   @GetMapping("/funcionario")
+   public ResponseEntity<List<FuncionarioResponse>> obtenerTodosFuncionarios() {
+      List<FuncionarioResponse> funcionarios = registroService.obtenerTodosFuncionarios();
+      return ResponseEntity.ok(funcionarios);
+   }
+
+   @GetMapping("/funcionario/docente")
+   public ResponseEntity<List<FuncionarioResponse>> obtenerTodosDocentes() {
+      List<FuncionarioResponse> docentes = registroService.obtenerTodosDocentes();
+      return ResponseEntity.ok(docentes);
+   }
+
+   @GetMapping("/funcionario/inspector")
+   public ResponseEntity<List<FuncionarioResponse>> obtenerTodosInspectores() {
+      List<FuncionarioResponse> inspectores = registroService.obtenerTodosInspectores();
+      return ResponseEntity.ok(inspectores);
+   }
+
+   @GetMapping("/funcionario/directivo")
+   public ResponseEntity<List<FuncionarioResponse>> obtenerTodosDirectivos() {
+      List<FuncionarioResponse> directivos = registroService.obtenerTodosDirectivos();
+      return ResponseEntity.ok(directivos);
+   }
+
+   // ==========================================
+   // 4. ENDPOINTS: EDICIÓN Y ELIMINACIÓN
+   // ==========================================
+
+   @PutMapping("/funcionario/docente/{id}")
+   public ResponseEntity<Void> actualizarDocente(@PathVariable int id, @RequestBody RegistroDocenteRequest req) {
+      registroService.actualizarDocente(id, req);
+      return ResponseEntity.noContent().build();
+   }
+
+   @PutMapping("/funcionario/inspector/{id}")
+   public ResponseEntity<Void> actualizarInspector(@PathVariable int id, @RequestBody RegistroInspectorRequest req) {
+      registroService.actualizarInspector(id, req);
+      return ResponseEntity.noContent().build();
+   }
+
+   @PutMapping("/funcionario/directivo/{id}")
+   public ResponseEntity<Void> actualizarDirectivo(@PathVariable int id, @RequestBody RegistroDirectivoRequest req) {
+      registroService.actualizarDirectivo(id, req);
+      return ResponseEntity.noContent().build();
+   }
+
+   @DeleteMapping("/funcionario/{id}")
+   public ResponseEntity<Void> eliminarFuncionario(@PathVariable int id) {
+      registroService.eliminarFuncionario(id);
+      return ResponseEntity.noContent().build();
    }
 }

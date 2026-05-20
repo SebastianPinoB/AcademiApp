@@ -11,6 +11,7 @@ import com.example.AcademiApp.model.Entities.Apoderado;
 import com.example.AcademiApp.model.Entities.Directivo;
 import com.example.AcademiApp.model.Entities.Docente;
 import com.example.AcademiApp.model.Entities.Estudiante;
+import com.example.AcademiApp.model.Entities.Funcionario;
 import com.example.AcademiApp.model.Entities.Inspector;
 import com.example.AcademiApp.model.Entities.Usuario;
 import com.example.AcademiApp.model.Entities.direccion.Ciudad;
@@ -25,6 +26,7 @@ import com.example.AcademiApp.model.request.RegistroInspectorRequest;
 import com.example.AcademiApp.model.request.RegistroRequest;
 import com.example.AcademiApp.model.request.direccion.DireccionRequest;
 import com.example.AcademiApp.model.response.EstudianteResponse;
+import com.example.AcademiApp.model.response.FuncionarioResponse;
 import com.example.AcademiApp.repository.ApoderadoRespository;
 import com.example.AcademiApp.repository.DirectivoRespository;
 import com.example.AcademiApp.repository.DocenteRepository;
@@ -130,6 +132,30 @@ public class RegistroService {
 
    }
 
+   @Transactional
+   public void eliminarEstudiante(int id) {
+      // 1. Verificar si el alumno existe antes de hacer nada
+      Estudiante estudiante = estudianteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Alumno no encontrado con el ID: " + id));
+
+      // 2. Obtener el apoderado asociado a este alumno
+      Apoderado apoderado = estudiante.getApoderado();
+
+      // 3. Eliminar al alumno primero
+      estudianteRepository.delete(estudiante);
+
+      // 4. Si tenía apoderado, verificar si está a cargo de otros alumnos
+      if (apoderado != null) {
+         // Contamos cuántos alumnos le quedan a ese apoderado
+         int cantidadAlumnosRestantes = estudianteRepository.countByApoderadoId(apoderado.getUsuId());
+
+         // Si ya no le quedan más alumnos, lo eliminamos a él también
+         if (cantidadAlumnosRestantes == 0) {
+            apoderadoRespository.delete(apoderado);
+         }
+      }
+   }
+
    // Buscar todos
    public List<Estudiante> obtenerTodosEstudiantes() {
       return estudianteRepository.findAll();
@@ -140,7 +166,6 @@ public class RegistroService {
    }
 
    // Buscar * id
-   // Buscar * id
    public EstudianteResponse obtenerEstudiante(int id) {
 
       Estudiante est = estudianteRepository.findById(id)
@@ -150,7 +175,7 @@ public class RegistroService {
 
       // Mapeamos manualmente la entidad al Record de respuesta
       return new EstudianteResponse(
-            est.getUsu_id(),
+            est.getUsuId(),
             est.getUsu_nombre(),
             est.getUsu_appaterno(),
             est.getUsu_email(),
@@ -313,6 +338,185 @@ public class RegistroService {
 
       inspectorRespository.save(inspector);
 
+   }
+
+   public List<FuncionarioResponse> obtenerTodosFuncionarios() {
+      List<Funcionario> funcionarios = funcionarioRepository.findAll();
+
+      return funcionarios.stream().map(f -> {
+         // 1. Armar el nombre completo
+         String nombreCompleto = f.getUsu_nombre() + " " + f.getUsu_appaterno() + " " + f.getUsu_apmaterno();
+
+         // 2. Determinar el "cargo" dinámicamente por su clase (ya que no hay roles aún)
+         String cargo = "GENERAL";
+         if (f instanceof Docente)
+            cargo = "DOCENTE";
+         else if (f instanceof Inspector)
+            cargo = "INSPECTOR";
+         else if (f instanceof Directivo)
+            cargo = "DIRECTIVO";
+
+         // 3. Mapear el título de la entidad al campo 'especialidad' del Record
+         String especialidad = f.getFunci_titulo(); // Aquí viaja el título profesional
+
+         // Retornamos el Record usando su constructor compacto
+         return new FuncionarioResponse(
+               f.getUsuId(),
+               nombreCompleto,
+               f.getUsu_email(),
+               cargo,
+               especialidad);
+      }).toList();
+   }
+
+   @Transactional
+   public void actualizarDocente(int id, RegistroDocenteRequest req) {
+      Docente docente = docenteRepository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Docente no encontrado con ID: " + id));
+
+      // 1. Campos heredados de Usuario
+      docente.setNumrun(req.numrun());
+      docente.setUsu_dvrun(req.dvRun());
+      docente.setUsu_nombre(req.nombre());
+      docente.setUsu_snombre(req.segundoNombre());
+      docente.setUsu_appaterno(req.apellidoPaterno());
+      docente.setUsu_apmaterno(req.apellidoMaterno());
+      docente.setUsu_email(req.email());
+
+      // 2. Limpiar y procesar nuevas direcciones si vienen en el request
+      if (req.direcciones() != null) {
+         docente.getDirecciones().clear();
+         procesarDirecciones(docente, req.direcciones());
+      }
+
+      // 3. Campos específicos de Funcionario y Docente
+      docente.setFunci_titulo(req.titulo());
+      docente.setDocen_espec(req.especialidad());
+
+      docenteRepository.save(docente);
+   }
+
+   @Transactional
+   public void actualizarInspector(int id, RegistroInspectorRequest req) {
+      // Nota: Usamos 'inspectorRespository' respetando el nombre de tu @Autowired
+      Inspector inspector = inspectorRespository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Inspector no encontrado con ID: " + id));
+
+      inspector.setNumrun(req.numrun());
+      inspector.setUsu_dvrun(req.dvRun());
+      inspector.setUsu_nombre(req.nombre());
+      inspector.setUsu_snombre(req.segundoNombre());
+      inspector.setUsu_appaterno(req.apellidoPaterno());
+      inspector.setUsu_apmaterno(req.apellidoMaterno());
+      inspector.setUsu_email(req.email());
+
+      if (req.direcciones() != null) {
+         inspector.getDirecciones().clear();
+         procesarDirecciones(inspector, req.direcciones());
+      }
+
+      inspector.setFunci_titulo(req.titulo());
+      inspector.setInspec_nivel(req.nivel());
+
+      inspectorRespository.save(inspector);
+   }
+
+   @Transactional
+   public void actualizarDirectivo(int id, RegistroDirectivoRequest req) {
+      // Nota: Usamos 'directivoRespository' respetando el nombre de tu @Autowired
+      Directivo directivo = directivoRespository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Directivo no encontrado con ID: " + id));
+
+      directivo.setNumrun(req.numrun());
+      directivo.setUsu_dvrun(req.dvRun());
+      directivo.setUsu_nombre(req.nombre());
+      directivo.setUsu_snombre(req.segundoNombre());
+      directivo.setUsu_appaterno(req.apellidoPaterno());
+      directivo.setUsu_apmaterno(req.apellidoMaterno());
+      directivo.setUsu_email(req.email());
+
+      if (req.direcciones() != null) {
+         directivo.getDirecciones().clear();
+         procesarDirecciones(directivo, req.direcciones());
+      }
+
+      directivo.setFunci_titulo(req.titulo());
+      directivo.setDirect_cargo(req.cargoDirectivo());
+
+      directivoRespository.save(directivo);
+   }
+
+   // ==========================================
+   // ELIMINACIÓN DE FUNCIONARIOS (DELETE)
+   // ==========================================
+
+   @Transactional
+   public void eliminarFuncionario(int id) {
+      if (!funcionarioRepository.existsById(id)) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+               "No se puede eliminar: Funcionario no encontrado con ID: " + id);
+      }
+
+      // Al borrar desde funcionarioRepository usando JOINED, JPA elimina en cascada
+      // las tablas de Especialidad (Docente/Inspector/Directivo), Funcionario y
+      // Usuario de golpe.
+      funcionarioRepository.deleteById(id);
+   }
+
+   public List<FuncionarioResponse> obtenerTodosDocentes() {
+      List<Docente> docentes = docenteRepository.findAll();
+
+      return docentes.stream().map(d -> {
+         String nombreCompleto = d.getUsu_nombre() + " " + d.getUsu_appaterno() + " " + d.getUsu_apmaterno();
+         
+         // En especialidad pasamos d.getDocen_espec() para ver su área (ej: Matemática, Historia)
+         return new FuncionarioResponse(
+               d.getUsuId(),
+               nombreCompleto,
+               d.getUsu_email(),
+               "DOCENTE",
+               d.getDocen_espec() 
+         );
+      }).toList();
+   }
+
+   public List<FuncionarioResponse> obtenerTodosInspectores() {
+      // Nota: Usamos 'inspectorRespository' respetando el nombre de tu @Autowired
+      List<Inspector> inspectores = inspectorRespository.findAll();
+
+      return inspectores.stream().map(i -> {
+         String nombreCompleto = i.getUsu_nombre() + " " + i.getUsu_appaterno() + " " + i.getUsu_apmaterno();
+         
+         // En especialidad pasamos el nivel que tiene a cargo (ej: Segundo Ciclo Básico)
+         return new FuncionarioResponse(
+               i.getUsuId(),
+               nombreCompleto,
+               i.getUsu_email(),
+               "INSPECTOR",
+               i.getInspec_nivel() 
+         );
+      }).toList();
+   }
+
+   public List<FuncionarioResponse> obtenerTodosDirectivos() {
+      // Nota: Usamos 'directivoRespository' respetando el nombre de tu @Autowired
+      List<Directivo> directivos = directivoRespository.findAll();
+
+      return directivos.stream().map(d -> {
+         String nombreCompleto = d.getUsu_nombre() + " " + d.getUsu_appaterno() + " " + d.getUsu_apmaterno();
+         
+         // En especialidad pasamos el cargo directivo que ejerce (ej: Director Académico, UTP)
+         return new FuncionarioResponse(
+               d.getUsuId(),
+               nombreCompleto,
+               d.getUsu_email(),
+               "DIRECTIVO",
+               d.getDirect_cargo() 
+         );
+      }).toList();
    }
 
    // --- MÉTODOS DE APOYO (Privados) ---
