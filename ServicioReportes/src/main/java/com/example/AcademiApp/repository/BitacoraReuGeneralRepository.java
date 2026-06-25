@@ -9,6 +9,7 @@ import com.example.AcademiApp.models.entities.BitacoraReuGeneral;
 
 @Repository
 public interface BitacoraReuGeneralRepository extends JpaRepository<BitacoraReuGeneral, Integer> {
+    
     List<BitacoraReuGeneral> findByIdFuncionario(int idFuncionario);
 
 }

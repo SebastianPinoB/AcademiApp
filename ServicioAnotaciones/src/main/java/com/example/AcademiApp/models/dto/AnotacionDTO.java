@@ -1,13 +1,14 @@
 package com.example.AcademiApp.models.dto;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public record AnotacionDTO(
     Long id,
+    String anotDesc,
     String tipo,
-    String descripcion,
     LocalDate fecha,
-    String nombreDocente // Se obtendría consultando al Auth
-) {
-
-}
+    LocalTime hora,
+    Integer idEstudiante,
+    Integer idDocente
+) {}

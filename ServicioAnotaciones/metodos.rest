@@ -1,0 +1,56 @@
+### Variables
+@baseUrl = http://localhost:5006/api/anotaciones
+
+### 1. Obtener todas las anotaciones
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### 2. Crear una nueva anotación (POST)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "anotDesc": "El estudiante no presentó la tarea de matemáticas.",
+  "tipo": "Negativa",
+  "fecha": "2024-10-25",
+  "hora": "10:30:00",
+  "idEstudiante": 15,
+  "idDocente": 3
+}
+
+###
+
+### 3. Obtener una anotación específica por ID (Cambia el '1' por un ID real)
+GET {{baseUrl}}/1
+Accept: application/json
+
+###
+
+### 4. Actualizar una anotación existente (PUT)
+### (Asumiendo que vamos a actualizar la descripción y el tipo del ID 1)
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "anotDesc": "El estudiante entregó la tarea tarde, pero estaba correcta.",
+  "tipo": "Observación",
+  "fecha": "2024-10-25",
+  "hora": "10:30:00",
+  "idEstudiante": 15,
+  "idDocente": 3
+}
+
+###
+
+### 5. Probar validaciones (POST enviando campos vacíos para ver el error)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "anotDesc": "",
+  "tipo": "Negativa",
+  "fecha": "2024-10-25"
+  // Faltan campos obligatorios como idEstudiante, hora, idDocente
+}

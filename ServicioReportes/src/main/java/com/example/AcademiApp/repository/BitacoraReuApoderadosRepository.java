@@ -10,9 +10,10 @@ import com.example.AcademiApp.models.entities.BitacoraReuApoderados;
 
 @Repository
 public interface BitacoraReuApoderadosRepository extends JpaRepository<BitacoraReuApoderados, Integer> {
-    // Crucial para mostrar el historial de reuniones a un curso específico
-    List<BitacoraReuApoderados> findByIdCurso(int idCurso);
     
-    // Permite recuperar actas por fecha para reportes mensuales
+    
+    List<BitacoraReuApoderados> findByCursoId(int cursoId);
+    
+    
     List<BitacoraReuApoderados> findByFechaBetween(LocalDate inicio, LocalDate fin);
 }

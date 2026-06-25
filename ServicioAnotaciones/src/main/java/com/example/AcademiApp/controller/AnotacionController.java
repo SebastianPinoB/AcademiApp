@@ -2,46 +2,67 @@ package com.example.AcademiApp.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.AcademiApp.models.dto.AnotacionDTO;
-import com.example.AcademiApp.models.entities.Anotacion;
-import com.example.AcademiApp.models.request.AnotacionRequest;
-import com.example.AcademiApp.repository.AnotacionRepository;
+import com.example.AcademiApp.models.request.AnotacionCreateRequest;
+import com.example.AcademiApp.models.request.AnotacionUpdateRequest;
 import com.example.AcademiApp.services.AnotacionService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/anotaciones")
+@RequiredArgsConstructor
 public class AnotacionController {
 
-    @Autowired
-    private AnotacionService service;
+    private final AnotacionService anotacionService;
 
-    @Autowired
-    private AnotacionRepository repository;
-
-    // Registrar nueva anotación (Docente/Inspector)
-    @PostMapping
-    public ResponseEntity<AnotacionDTO> crear(@RequestBody AnotacionRequest request) {
-        // En un entorno real, el API Gateway ya habría validado el rol del usuario [8, 9].
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarAnotacion(request));
+    // ==========================================
+    // GET - Obtener todas las anotaciones
+    // ==========================================
+    @GetMapping
+    public ResponseEntity<List<AnotacionDTO>> getAllAnotaciones() {
+        List<AnotacionDTO> anotaciones = anotacionService.getAllAnotaciones();
+        return ResponseEntity.ok(anotaciones);
     }
 
-    // Consultar historial para el estudiante (Portal de Consultas RF-49)
-    @GetMapping("/estudiante/{id}")
-    public ResponseEntity<List<Anotacion>> consultarHistorial(@PathVariable int id) {
-        // --- COMENTARIO DE SEGURIDAD ---
-        // Si el usuario es Apoderado, validar en el Servicio Auth que el 'id' 
-        // solicitado corresponde a su pupilo registrado.
-        return ResponseEntity.ok(repository.findByIdEstudianteOrderByFechaDesc(id));
+    // ==========================================
+    // GET - Obtener por ID
+    // ==========================================
+    @GetMapping("/{id}")
+    public ResponseEntity<AnotacionDTO> getAnotacionById(@PathVariable Long id) {
+        AnotacionDTO anotacion = anotacionService.getAnotacionById(id);
+        return ResponseEntity.ok(anotacion);
+    }
+
+    // ==========================================
+    // POST - Crear nueva anotación
+    // ==========================================
+    @PostMapping
+    public ResponseEntity<AnotacionDTO> createAnotacion(@Valid @RequestBody AnotacionCreateRequest request) {
+        AnotacionDTO nuevaAnotacion = anotacionService.createAnotacion(request);
+        return new ResponseEntity<>(nuevaAnotacion, HttpStatus.CREATED);
+    }
+
+    // ==========================================
+    // PUT - Actualizar anotación existente
+    // ==========================================
+    @PutMapping("/{id}")
+    public ResponseEntity<AnotacionDTO> updateAnotacion(
+            @PathVariable Long id,
+            @Valid @RequestBody AnotacionUpdateRequest request) {
+        
+        AnotacionDTO anotacionActualizada = anotacionService.updateAnotacion(id, request);
+        return ResponseEntity.ok(anotacionActualizada);
     }
 }

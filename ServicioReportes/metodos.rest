@@ -1,0 +1,60 @@
+### Variables
+# El microservicio de Reportes está en el puerto 5005
+@baseUrl = http://localhost:5005/api/bitacoras
+
+### ==========================================
+### 1. REGISTRAR UNA CITA DE APODERADO
+### ==========================================
+# Consume el servicio de Usuarios buscando al usuId: 2
+POST {{baseUrl}}/citas
+Content-Type: application/json
+
+{
+  "fecha": "2026-06-25",
+  "hora": "10:30:00",
+  "descripcion": "Entrevista con apoderado por rendimiento académico.",
+  "temasTratados": "Falta de entrega de trabajos en la asignatura de Lenguaje.",
+  "acuerdos": "El apoderado se compromete a revisar la plataforma virtual todos los viernes.",
+  "observaciones": "El apoderado asiste puntualmente y muestra buena disposición.",
+  "usuId": 2,
+  "bitFirmaApo": true,
+  "firmaDocente": "Firma_Docente_Jefe"
+}
+
+###
+
+### ==========================================
+### 2. REGISTRAR UN ACTA: REUNIÓN DE APODERADOS
+### ==========================================
+# Consume el servicio de Cursos buscando al cursoId: 1
+POST {{baseUrl}}/actas
+Content-Type: application/json
+
+{
+  "fecha": "2026-06-26",
+  "hora": "19:00:00",
+  "descripcion": "Primera reunión general de apoderados del semestre.",
+  "temasTratados": "Lectura de reglamento de convivencia y elección de directiva.",
+  "acuerdos": "Se elige presidente, tesorero y secretario. Se fija cuota voluntaria de curso.",
+  "observaciones": "Alta asistencia (90% del curso presente).",
+  "cursoId": 1
+}
+
+###
+
+### ==========================================
+### 3. REGISTRAR UN ACTA: REUNIÓN GENERAL (CONSEJO PROFESORES)
+### ==========================================
+# Consume el servicio de Usuarios buscando al idFuncionario: 3
+POST {{baseUrl}}/actas
+Content-Type: application/json
+
+{
+  "fecha": "2026-06-27",
+  "hora": "08:00:00",
+  "descripcion": "Consejo técnico de profesores de enseñanza media.",
+  "temasTratados": "Análisis de resultados SIMCE y planificación de ensayos PSU/PAES.",
+  "acuerdos": "Realizar ensayos mensuales a partir de agosto.",
+  "observaciones": "Reunión liderada por UTP.",
+  "idFuncionario": 3
+}

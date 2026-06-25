@@ -1,0 +1,66 @@
+### Variables
+# Asegúrate de que el puerto coincida con el de tu microservicio de Cursos
+@baseUrl = http://localhost:5008/cursos
+
+### ==========================================
+### 1. CREAR UN CURSO (POST)
+### ==========================================
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "cursoLetra": "A",
+  "nivel": {
+    "nivelNombre": "Primero Medio"
+  },
+  "sala": {
+    "salaNombre": "Sala 101",
+    "salaCapacidad": 35
+  }
+}
+
+###
+
+### ==========================================
+### 2. OBTENER TODOS LOS CURSOS (GET)
+### ==========================================
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### ==========================================
+### 3. OBTENER UN CURSO POR ID (GET)
+### ==========================================
+# Cambia el '1' por el ID del curso generado en tu base de datos
+GET {{baseUrl}}/1
+Accept: application/json
+
+###
+
+### ==========================================
+### 4. ACTUALIZAR UN CURSO EXISTENTE (PUT)
+### ==========================================
+# Cambia el '1' por el ID del curso que deseas actualizar.
+# En este ejemplo le cambiamos la letra al curso y lo movemos a una sala más grande.
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "cursoLetra": "B",
+  "nivel": {
+    "nivelNombre": "Primero Medio"
+  },
+  "sala": {
+    "salaNombre": "Sala 105 - Laboratorio",
+    "salaCapacidad": 45
+  }
+}
+
+###
+
+### ==========================================
+### 5. ELIMINAR UN CURSO (DELETE)
+### ==========================================
+# Cambia el '1' por el ID del curso que quieras borrar
+DELETE {{baseUrl}}/1

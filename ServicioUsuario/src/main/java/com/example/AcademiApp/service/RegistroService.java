@@ -257,6 +257,43 @@ public class RegistroService {
 
    // ------------------- Funcionario
 
+   // ==========================================
+   // OBTENER UN FUNCIONARIO ESPECÍFICO POR ID
+   // ==========================================
+   public FuncionarioResponse obtenerFuncionario(int id) {
+      
+      // 1. Buscamos al funcionario en la base de datos
+      Funcionario f = funcionarioRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                  HttpStatus.NOT_FOUND, 
+                  "Funcionario no encontrado con ID: " + id));
+
+      // 2. Armar el nombre completo
+      String nombreCompleto = f.getUsu_nombre() + " " + f.getUsu_appaterno() + " " + f.getUsu_apmaterno();
+
+      // 3. Determinar el "cargo" dinámicamente por su clase
+      String cargo = "GENERAL";
+      if (f instanceof Docente) {
+         cargo = "DOCENTE";
+      } else if (f instanceof Inspector) {
+         cargo = "INSPECTOR";
+      } else if (f instanceof Directivo) {
+         cargo = "DIRECTIVO";
+      }
+
+      // 4. Mapear el título de la entidad al campo 'especialidad'
+      String especialidad = f.getFunci_titulo();
+
+      // 5. Retornamos el DTO instanciado
+      return new FuncionarioResponse(
+            f.getUsuId(),
+            nombreCompleto,
+            f.getUsu_email(),
+            cargo,
+            especialidad
+      );
+   }
+
    // Registro
    @Transactional
    public void registrarDocente(RegistroDocenteRequest req) {

@@ -1,53 +1,95 @@
 package com.example.AcademiApp.services;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.AcademiApp.models.dto.AnotacionDTO;
 import com.example.AcademiApp.models.entities.Anotacion;
-import com.example.AcademiApp.models.request.AnotacionRequest;
+import com.example.AcademiApp.models.request.AnotacionCreateRequest;
+import com.example.AcademiApp.models.request.AnotacionUpdateRequest;
 import com.example.AcademiApp.repository.AnotacionRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AnotacionService {
 
-    @Autowired
-    private AnotacionRepository repository;
+    private final AnotacionRepository anotacionRepository;
 
-    public AnotacionDTO registrarAnotacion(AnotacionRequest request) {
+    // ==========================================
+    // 1. GET - Obtener todas las anotaciones
+    // ==========================================
+    public List<AnotacionDTO> getAllAnotaciones() {
+        return anotacionRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ==========================================
+    // 2. GET - Obtener por ID
+    // ==========================================
+    public AnotacionDTO getAnotacionById(Long id) {
+        Anotacion anotacion = anotacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Anotación no encontrada con el ID: " + id));
+        return convertToDTO(anotacion);
+    }
+
+    // ==========================================
+    // 3. CREATE (POST) - Crear nueva anotación
+    // ==========================================
+    public AnotacionDTO createAnotacion(AnotacionCreateRequest request) {
+        Anotacion nuevaAnotacion = new Anotacion();
         
-        // --- COMENTARIO DE CONEXIÓN: SERVICIO AUTH ---
-        // 1. Validar que 'request.getIdDocente()' existe y tiene permisos de "Docente" o "Inspector" [3, 6].
-        // 2. Validar que 'request.getIdEstudiante()' existe y tiene matrícula vigente en el periodo [3].
-        // 3. (Repo Actualizado): Solicitar al Auth el nombre del docente para incluirlo en la notificación.
+        // Ahora usamos los getters generados por @Data
+        nuevaAnotacion.setAnotDesc(request.getAnotDesc());
+        nuevaAnotacion.setTipo(request.getTipo());
+        nuevaAnotacion.setFecha(request.getFecha());
+        nuevaAnotacion.setHora(request.getHora());
+        nuevaAnotacion.setIdEstudiante(request.getIdEstudiante());
+        nuevaAnotacion.setIdDocente(request.getIdDocente());
 
-        // --- COMENTARIO DE CONEXIÓN: SERVICIO VIDA ESTUDIANTIL ---
-        // Según RF-55 y CU-AC-01 [3, 6], esta anotación debe "copiarse automáticamente" 
-        // o ser vinculada a la Hoja de Vida Integral del estudiante.
+        Anotacion anotacionGuardada = anotacionRepository.save(nuevaAnotacion);
+        
+        return convertToDTO(anotacionGuardada);
+    }
 
-        Anotacion nueva = new Anotacion();
-        nueva.setAnotDesc(request.getDescripcion());
-        nueva.setTipo(request.getTipo());
-        nueva.setFecha(LocalDate.now());
-        nueva.setHora(LocalTime.now());
-        nueva.setIdEstudiante(request.getIdEstudiante());
-        nueva.setIdDocente(request.getIdDocente());
+    // ==========================================
+    // 4. UPDATE (PUT) - Actualizar anotación existente
+    // ==========================================
+    public AnotacionDTO updateAnotacion(Long id, AnotacionUpdateRequest request) {
+        Anotacion anotacionExistente = anotacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Anotación no encontrada con el ID: " + id));
 
-        Anotacion guardada = repository.save(nueva);
+        anotacionExistente.setAnotDesc(request.getAnotDesc());
+        
+        if (request.getTipo() != null) anotacionExistente.setTipo(request.getTipo());
+        if (request.getFecha() != null) anotacionExistente.setFecha(request.getFecha());
+        if (request.getHora() != null) anotacionExistente.setHora(request.getHora());
+        if (request.getIdEstudiante() != null) anotacionExistente.setIdEstudiante(request.getIdEstudiante());
+        if (request.getIdDocente() != null) anotacionExistente.setIdDocente(request.getIdDocente());
 
-        // --- COMENTARIO DE CONEXIÓN: SERVICIO MENSAJERÍA/NOTIFICACIONES ---
-        // Al guardar con éxito, el sistema debe disparar un correo o notificación push 
-        // automática al Apoderado vinculado (RF-48, CU-AC-01 paso 11) [3].
+        Anotacion anotacionActualizada = anotacionRepository.save(anotacionExistente);
 
+        return convertToDTO(anotacionActualizada);
+    }
+
+    // ==========================================
+    // MÉTODO AUXILIAR: Mapeo de Entidad a DTO (Record)
+    // ==========================================
+    private AnotacionDTO convertToDTO(Anotacion anotacion) {
+        // Al ser un record, lo instanciamos pasando todos los argumentos al constructor
         return new AnotacionDTO(
-            guardada.getId(), 
-            guardada.getTipo(), 
-            guardada.getAnotDesc(), 
-            guardada.getFecha(), 
-            "Docente ID: " + guardada.getIdDocente() // Nombre real vendría de Auth
+                anotacion.getId(),
+                anotacion.getAnotDesc(),
+                anotacion.getTipo(),
+                anotacion.getFecha(),
+                anotacion.getHora(),
+                anotacion.getIdEstudiante(),
+                anotacion.getIdDocente()
         );
     }
 }

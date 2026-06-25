@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ActaRequest {
+public class CitaRequest {
 
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate fecha;
@@ -16,15 +16,17 @@ public class ActaRequest {
     @NotNull(message = "La hora es obligatoria")
     private LocalTime hora;
 
-    @NotBlank(message = "La descripción del acta es obligatoria")
+    @NotBlank(message = "La descripción de la cita es obligatoria")
     private String descripcion;
 
     private String temasTratados;
     private String acuerdos;
     private String observaciones;
 
-    // Dependiendo de tu lógica en el Service, uno de estos dos será obligatorio
-    // según el endpoint que lo reciba, por lo que no les ponemos @NotNull general.
-    private Integer cursoId;
-    private Integer idFuncionario;
+    @NotNull(message = "El ID del estudiante (usuId) es obligatorio")
+    private Integer usuId;
+
+    // Estos pueden venir nulos al crear, asumiendo que se firman después
+    private Boolean bitFirmaApo;
+    private String firmaDocente;
 }

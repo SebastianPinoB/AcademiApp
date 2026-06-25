@@ -19,7 +19,7 @@ public class Anotacion {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false)
     private String anotDesc; 
 
     private String tipo;

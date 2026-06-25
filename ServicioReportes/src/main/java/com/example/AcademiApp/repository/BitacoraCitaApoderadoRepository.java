@@ -9,8 +9,9 @@ import com.example.AcademiApp.models.entities.BitacoraCitaApoderado;
 
 @Repository
 public interface BitacoraCitaApoderadoRepository extends JpaRepository<BitacoraCitaApoderado, Integer> {
-    List<BitacoraCitaApoderado> findByIdEstudianteOrderByFechaDesc(int idEstudiante);
+    
+    // CORREGIDO: En tu entidad la variable se llama "usuId"
+    List<BitacoraCitaApoderado> findByUsuIdOrderByFechaDesc(int usuId);
 
-    List<BitacoraCitaApoderado> findByIdFuncionario(int idFuncionario);
-
+    // ELIMINADO: findByIdFuncionario(int idFuncionario) porque BitacoraCitaApoderado no tiene esa propiedad.
 }

@@ -1,0 +1,165 @@
+### Variables
+@baseUrl = http://localhost:5000/registro
+
+### ==========================================
+### 1. REGISTRAR ALUMNO Y APODERADO
+### ==========================================
+POST {{baseUrl}}/alumno
+Content-Type: application/json
+
+{
+  "alumno": {
+    "numrun": 22345678,
+    "dvRun": "K",
+    "nombre": "Camilo",
+    "segundoNombre": "Ignacio",
+    "apellidoPaterno": "Soto",
+    "apellidoMaterno": "Vargas",
+    "email": "camilo.soto@alumno.cl",
+    "password": "password123",
+    "parentesco": "Hijo",
+    "direcciones": [
+      {
+        "nombrePais": "Chile",
+        "nombreRegion": "Metropolitana",
+        "nombreCiudad": "Santiago",
+        "nombreComuna": "San Miguel",
+        "calle": "Gran Avenida José Miguel Carrera",
+        "numero": "4500",
+        "letra": "Depto 302"
+      }
+    ]
+  },
+  "apoderado": {
+    "numrun": 12345678,
+    "dvRun": "9",
+    "nombre": "Carlos",
+    "segundoNombre": "Alberto",
+    "apellidoPaterno": "Soto",
+    "apellidoMaterno": "Méndez",
+    "email": "carlos.soto@correo.cl",
+    "password": "password123",
+    "parentesco": "Padre",
+    "direcciones": [
+      {
+        "nombrePais": "Chile",
+        "nombreRegion": "Metropolitana",
+        "nombreCiudad": "Santiago",
+        "nombreComuna": "San Miguel",
+        "calle": "Gran Avenida José Miguel Carrera",
+        "numero": "4500",
+        "letra": "Depto 302"
+      }
+    ]
+  }
+}
+
+###
+
+### ==========================================
+### 2. REGISTRAR DOCENTE
+### ==========================================
+POST {{baseUrl}}/funcionario/docente
+Content-Type: application/json
+
+{
+  "numrun": 15678901,
+  "dvRun": "2",
+  "nombre": "Andrea",
+  "segundoNombre": "Paz",
+  "apellidoPaterno": "López",
+  "apellidoMaterno": "Ríos",
+  "email": "andrea.lopez@colegio.cl",
+  "password": "password123",
+  "titulo": "Pedagogía en Matemáticas",
+  "especialidad": "Matemática y Física",
+  "direcciones": [
+    {
+      "nombrePais": "Chile",
+      "nombreRegion": "Metropolitana",
+      "nombreCiudad": "Santiago",
+      "nombreComuna": "La Cisterna",
+      "calle": "Avenida El Parrón",
+      "numero": "850",
+      "letra": ""
+    }
+  ]
+}
+
+###
+
+### ==========================================
+### 3. REGISTRAR INSPECTOR
+### ==========================================
+POST {{baseUrl}}/funcionario/inspector
+Content-Type: application/json
+
+{
+  "numrun": 14555666,
+  "dvRun": "7",
+  "nombre": "Mario",
+  "segundoNombre": "Andrés",
+  "apellidoPaterno": "Gómez",
+  "apellidoMaterno": "Tapia",
+  "email": "mario.gomez@colegio.cl",
+  "password": "password123",
+  "titulo": "Técnico en Educación",
+  "nivel": "Segundo Ciclo Básico",
+  "direcciones": [
+    {
+      "nombrePais": "Chile",
+      "nombreRegion": "Metropolitana",
+      "nombreCiudad": "Santiago",
+      "nombreComuna": "San Joaquín",
+      "calle": "Vicuña Mackenna",
+      "numero": "3200",
+      "letra": "Block C"
+    }
+  ]
+}
+
+###
+
+### ==========================================
+### 4. REGISTRAR DIRECTIVO
+### ==========================================
+POST {{baseUrl}}/funcionario/directivo
+Content-Type: application/json
+
+{
+  "numrun": 11222333,
+  "dvRun": "4",
+  "nombre": "Lorena",
+  "segundoNombre": "Isabel",
+  "apellidoPaterno": "Fernández",
+  "apellidoMaterno": "Cruz",
+  "email": "lorena.fernandez@colegio.cl",
+  "password": "password123",
+  "titulo": "Magíster en Gestión Educacional",
+  "cargoDirectivo": "Directora Académica",
+  "direcciones": [
+    {
+      "nombrePais": "Chile",
+      "nombreRegion": "Metropolitana",
+      "nombreCiudad": "Santiago",
+      "nombreComuna": "Providencia",
+      "calle": "Avenida Los Leones",
+      "numero": "145",
+      "letra": ""
+    }
+  ]
+}
+
+
+### ==========================================
+### ENDPOINT PARA INTEGRACIÓN CON OTROS SERVICIOS
+### ==========================================
+
+### 1. Obtener un funcionario específico por su ID
+### (Cambia el '1' por el ID de un docente, inspector o directivo que exista en tu BD)
+GET {{baseUrl}}/funcionario/3
+Accept: application/json
+
+### 2. Prueba con un ID que NO existe (Debería devolver 404 Not Found)
+GET {{baseUrl}}/funcionario/9999
+Accept: application/json
