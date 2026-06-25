@@ -16,8 +16,14 @@ public class MensajeriaService {
     @Autowired
     private MensajeriaRepository mensajeriaRepository;
 
+    @Autowired
+    private UsuarioClientService usuarioClientService;
+
     @Transactional
     public Mensajeria enviarIndividual(MensajeIndividualRequest request) {
+        usuarioClientService.validarUsuarioExiste(request.getMsjIdEmisor());
+        usuarioClientService.validarUsuarioExiste(request.getMsjIdReceptor());
+
         if (request.getMsjIdEmisor().equals(request.getMsjIdReceptor())) {
             throw new IllegalArgumentException("El emisor y receptor no pueden ser el mismo usuario.");
         }
@@ -35,6 +41,8 @@ public class MensajeriaService {
 
     @Transactional
     public Mensajeria enviarColectivo(MensajeColectivoRequest request) {
+        usuarioClientService.validarUsuarioExiste(request.getMsjIdEmisor());
+
         Mensajeria mensaje = new Mensajeria();
         mensaje.setMsjIdEmisor(request.getMsjIdEmisor());
         mensaje.setCursoId(request.getCursoId());

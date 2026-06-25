@@ -18,10 +18,13 @@ import java.util.List;
 public class HojaVidaService {
 
     @Autowired
-    private HojaVidaRepository hojaVidaRepository;
+    private UsuarioClientService usuarioClientService;
 
     @Transactional
     public HojaVidaEstudiante crear(HojaVidaRequest request) {
+        // Verifica que el estudiante exista en el ServicioUsuario
+        usuarioClientService.obtenerEstudiante(request.getEstudianteId());
+
         if (hojaVidaRepository.existsByEstudianteId(request.getEstudianteId())) {
             throw new IllegalArgumentException(
                 "Ya existe una hoja de vida para el estudiante con ID: " + request.getEstudianteId()
@@ -31,6 +34,9 @@ public class HojaVidaService {
         nueva.setEstudianteId(request.getEstudianteId());
         return hojaVidaRepository.save(nueva);
     }
+
+    @Autowired
+    private HojaVidaRepository hojaVidaRepository;
 
     public HojaVidaEstudiante obtenerPorEstudiante(int estudianteId) {
         return hojaVidaRepository.findByEstudianteId(estudianteId)

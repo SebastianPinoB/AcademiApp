@@ -17,6 +17,8 @@ public class AntecedenteApoderadoService {
     private AntecedenteApoderadoRepository antecedenteApoderadoRepository;
     @Autowired
     private HojaVidaRepository hojaVidaRepository;
+    @Autowired
+    private UsuarioClientService usuarioClientService;
 
     @Transactional
     public AntecedenteApoderado agregar(int hojaId, AntecedenteApoderadoRequest request) {
@@ -24,6 +26,9 @@ public class AntecedenteApoderadoService {
                 .orElseThrow(() -> new IllegalArgumentException(
                     "No existe hoja de vida con ID: " + hojaId
                 ));
+
+        // verifica que el apoderado exista en el servicioUsuario
+        usuarioClientService.obtenerApoderado(request.getApoderadoId());
 
         if (antecedenteApoderadoRepository.existsByHojaVida_HojaIdAndApoderadoId(hojaId, request.getApoderadoId())) {
             throw new IllegalArgumentException(

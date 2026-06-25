@@ -15,8 +15,13 @@ public class MuroDigitalService {
     @Autowired
     private MuroDigitalRepository muroDigitalRepository;
 
+    @Autowired
+    private UsuarioClientService usuarioClientService;
+
     @Transactional
     public MuroDigital publicar(MuroDigitalRequest request) {
+        usuarioClientService.obtenerDocente(request.getDocenteId());
+
         MuroDigital publicacion = new MuroDigital();
         publicacion.setDocenteId(request.getDocenteId());
         publicacion.setAsignaturaId(request.getAsignaturaId());

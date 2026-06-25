@@ -15,8 +15,13 @@ public class CalendarioEstudiantilService {
     @Autowired
     private CalendarioEstudiantilRepository calendarioRepository;
 
+    @Autowired
+    private UsuarioClientService usuarioClientService;
+
     @Transactional
     public CalendarioEstudiantil crear(CalendarioEstudiantilRequest request) {
+        usuarioClientService.obtenerDocente(request.getDocenteId());
+
         if (request.getCalEstFecha().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha no puede ser en el pasado.");
         }
