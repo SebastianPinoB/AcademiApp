@@ -4,11 +4,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record AnotacionDTO(
-    Long id,
-    String anotDesc,
-    String tipo,
-    LocalDate fecha,
-    LocalTime hora,
-    Integer idEstudiante,
-    Integer idDocente
+        Long id,
+        String anotDesc,
+        String tipo,
+        LocalDate fecha,
+        LocalTime hora,
+        Integer idEstudiante,
+        Integer idDocente,
+        
+        // Cambio de nomenclatura a Alumno
+        String nombreAlumno,
+        String nombreDocente
 ) {}

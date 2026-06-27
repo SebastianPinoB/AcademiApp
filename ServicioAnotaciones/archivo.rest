@@ -1,0 +1,74 @@
+### Variables
+# Ajusta el puerto al que estés utilizando para tu microservicio de Anotaciones
+@baseUrl = http://localhost:5006/api/anotaciones
+
+### ==========================================
+### 1. CREAR UNA ANOTACIÓN POSITIVA
+### ==========================================
+# Al ser "POSITIVA", el servicio consultará los nombres del alumno (2) 
+# y del docente (3), pero NO enviará un mensaje al apoderado.
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "anotDesc": "El alumno mostró un excelente desempeño y compañerismo durante el trabajo grupal.",
+  "tipo": "POSITIVA",
+  "fecha": "2026-06-25",
+  "hora": "10:15:00",
+  "idEstudiante": 2,
+  "idDocente": 3
+}
+
+###
+
+### ==========================================
+### 2. CREAR UNA ANOTACIÓN NEGATIVA (Prueba de Orquestación Completa)
+### ==========================================
+# Al ser "NEGATIVA", el servicio buscará los nombres, luego consultará 
+# la Hoja de Vida del alumno (2) para buscar a su apoderado, y finalmente 
+# enviará un mensaje automático al microservicio de Mensajería.
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "anotDesc": "El alumno fue sorprendido copiando durante la evaluación de matemáticas.",
+  "tipo": "NEGATIVA",
+  "fecha": "2026-06-25",
+  "hora": "14:30:00",
+  "idEstudiante": 2,
+  "idDocente": 3
+}
+
+###
+
+### ==========================================
+### 3. OBTENER TODAS LAS ANOTACIONES (GET)
+### ==========================================
+# Debería traerte el historial completo. Según configuramos el DTO, 
+# aquí los nombres dirán "N/A" para no sobrecargar la red con peticiones masivas.
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### ==========================================
+### 4. OBTENER UNA ANOTACIÓN ESPECÍFICA POR ID (GET)
+### ==========================================
+# Cambia el '1' por el ID de la anotación que se haya generado en tu base de datos.
+GET {{baseUrl}}/1
+Accept: application/json
+
+###
+
+### ==========================================
+### 5. ACTUALIZAR UNA ANOTACIÓN (PUT)
+### ==========================================
+# Cambia el '1' por el ID de la anotación que deseas modificar.
+# En este ejemplo, corregimos la hora y agregamos más detalle a la descripción.
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "anotDesc": "El alumno fue sorprendido copiando durante la evaluación de matemáticas. Se retira la prueba.",
+  "hora": "14:35:00"
+}
