@@ -54,4 +54,15 @@ public class HojaVidaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/{hojaId}")
+    public ResponseEntity<?> eliminar(@PathVariable int hojaId) {
+        try {
+            hojaVidaService.eliminar(hojaId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+    
 }

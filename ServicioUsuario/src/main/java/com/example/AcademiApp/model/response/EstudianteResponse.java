@@ -7,7 +7,7 @@ public record EstudianteResponse(
       String apellidoPaterno,
       String email,
       String parentesco,
-      String nombreApoderado // Solo el nombre para evitar el objeto circular
-
+      String nombreApoderado, // Solo el nombre para evitar el objeto circular
+      Integer apoderadoId //agrego campo para devolver el id de su apoderado en hojavida
 ) {
 }

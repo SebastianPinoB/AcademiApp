@@ -102,4 +102,12 @@ public class HojaVidaService {
         return response;
     }
 
+    @Transactional
+    public void eliminar(int hojaId) {
+        if (!hojaVidaRepository.existsById(hojaId)) {
+            throw new IllegalArgumentException("No se encontró hoja de vida con ID: " + hojaId);
+        }
+        hojaVidaRepository.deleteById(hojaId);
+    }
+
 }

@@ -182,7 +182,9 @@ public class RegistroService {
             est.getEstu_parentesco(),
             est.getApoderado() != null
                   ? est.getApoderado().getUsu_nombre()
-                  : "Sin apoderado");
+                  : "Sin apoderado",
+            est.getApoderado() != null ? est.getApoderado().getUsuId() : null //agrego dato para devolver el id de su apoderado 
+      );
    }
 
    // Actualizar
