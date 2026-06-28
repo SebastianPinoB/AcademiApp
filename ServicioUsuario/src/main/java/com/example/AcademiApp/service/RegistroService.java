@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -70,6 +71,8 @@ public class RegistroService {
    private ComunaRepository comunaRepository;
    @Autowired
    private UsuarioRepository usuarioRepository;
+   @Autowired
+   private PasswordEncoder passwordEncoder;
 
    // Crea usuarios y apoderados
    @Transactional
@@ -101,6 +104,12 @@ public class RegistroService {
 
          nuevoApo.setApode_parentesco(datosApo.parentesco());
 
+         String passwordCifrado = passwordEncoder.encode(datosApo.password());
+         nuevoApo.setUsu_pass(passwordCifrado);
+         
+
+         nuevoApo.setRole("APODERADO");
+
          if (datosApo.direcciones() != null) {
             procesarDirecciones(nuevoApo, datosApo.direcciones());
          }
@@ -122,6 +131,11 @@ public class RegistroService {
       estudiante.setUsu_apmaterno(alu.apellidoMaterno());
 
       estudiante.setEstu_parentesco(nuevoRegistro.apoderado().parentesco());
+
+      String passwordCifrado = passwordEncoder.encode(alu.password());
+      estudiante.setUsu_pass(passwordCifrado);
+
+      estudiante.setRole("ALUMNO");
 
       // PROCESAR DIRECCIONES DEL ALUMNO
       if (alu.direcciones() != null) {
@@ -160,7 +174,7 @@ public class RegistroService {
       }
    }
 
-   public List<Usuario> obtenerTodosUsuarios(){
+   public List<Usuario> obtenerTodosUsuarios() {
       return usuarioRepository.findAll();
    }
 
@@ -191,7 +205,8 @@ public class RegistroService {
             est.getApoderado() != null
                   ? est.getApoderado().getUsu_nombre()
                   : "Sin apoderado",
-            est.getApoderado() != null ? est.getApoderado().getUsuId() : null //agrego dato para devolver el id de su apoderado 
+            est.getApoderado() != null ? est.getApoderado().getUsuId() : null // agrego dato para devolver el id de su
+                                                                              // apoderado
       );
    }
 
@@ -271,11 +286,11 @@ public class RegistroService {
    // OBTENER UN FUNCIONARIO ESPECÍFICO POR ID
    // ==========================================
    public FuncionarioResponse obtenerFuncionario(int id) {
-      
+
       // 1. Buscamos al funcionario en la base de datos
       Funcionario f = funcionarioRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(
-                  HttpStatus.NOT_FOUND, 
+                  HttpStatus.NOT_FOUND,
                   "Funcionario no encontrado con ID: " + id));
 
       // 2. Armar el nombre completo
@@ -300,8 +315,7 @@ public class RegistroService {
             nombreCompleto,
             f.getUsuEmail(),
             cargo,
-            especialidad
-      );
+            especialidad);
    }
 
    // Registro
@@ -324,6 +338,11 @@ public class RegistroService {
 
       docente.setFunci_titulo(req.titulo());
       docente.setDocen_espec(req.especialidad());
+
+      String passwordCifrado = passwordEncoder.encode(req.password());
+      docente.setUsu_pass(passwordCifrado);
+
+      docente.setRole("DOCENTE");
 
       if (req.direcciones() != null) {
          procesarDirecciones(docente, req.direcciones());
@@ -355,6 +374,11 @@ public class RegistroService {
          procesarDirecciones(directivo, req.direcciones());
       }
 
+      String passwordCifrado = passwordEncoder.encode(req.password());
+      directivo.setUsu_pass(passwordCifrado);
+
+      directivo.setRole("DIRECTIVO");
+
       directivoRespository.save(directivo);
 
    }
@@ -382,6 +406,11 @@ public class RegistroService {
       if (req.direcciones() != null) {
          procesarDirecciones(inspector, req.direcciones());
       }
+
+      String passwordCifrado = passwordEncoder.encode(req.password());
+      inspector.setUsu_pass(passwordCifrado);
+
+      inspector.setRole("INSPECTOR");
 
       inspectorRespository.save(inspector);
 
@@ -518,15 +547,15 @@ public class RegistroService {
 
       return docentes.stream().map(d -> {
          String nombreCompleto = d.getUsu_nombre() + " " + d.getUsu_appaterno() + " " + d.getUsu_apmaterno();
-         
-         // En especialidad pasamos d.getDocen_espec() para ver su área (ej: Matemática, Historia)
+
+         // En especialidad pasamos d.getDocen_espec() para ver su área (ej: Matemática,
+         // Historia)
          return new FuncionarioResponse(
                d.getUsuId(),
                nombreCompleto,
                d.getUsuEmail(),
                "DOCENTE",
-               d.getDocen_espec() 
-         );
+               d.getDocen_espec());
       }).toList();
    }
 
@@ -536,15 +565,14 @@ public class RegistroService {
 
       return inspectores.stream().map(i -> {
          String nombreCompleto = i.getUsu_nombre() + " " + i.getUsu_appaterno() + " " + i.getUsu_apmaterno();
-         
+
          // En especialidad pasamos el nivel que tiene a cargo (ej: Segundo Ciclo Básico)
          return new FuncionarioResponse(
                i.getUsuId(),
                nombreCompleto,
                i.getUsuEmail(),
                "INSPECTOR",
-               i.getInspec_nivel() 
-         );
+               i.getInspec_nivel());
       }).toList();
    }
 
@@ -554,15 +582,15 @@ public class RegistroService {
 
       return directivos.stream().map(d -> {
          String nombreCompleto = d.getUsu_nombre() + " " + d.getUsu_appaterno() + " " + d.getUsu_apmaterno();
-         
-         // En especialidad pasamos el cargo directivo que ejerce (ej: Director Académico, UTP)
+
+         // En especialidad pasamos el cargo directivo que ejerce (ej: Director
+         // Académico, UTP)
          return new FuncionarioResponse(
                d.getUsuId(),
                nombreCompleto,
                d.getUsuEmail(),
                "DIRECTIVO",
-               d.getDirect_cargo() 
-         );
+               d.getDirect_cargo());
       }).toList();
    }
 
@@ -634,14 +662,14 @@ public class RegistroService {
    }
 
    public boolean validarUsuario(String email, String password) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuEmail(email);
+      Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuEmail(email);
 
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            // Asegúrate de usar el getter correcto de tu entidad Usuario
-            return usuario.getUsu_pass().equals(password); 
-        }
-        return false;
-    }
+      if (usuarioOpt.isPresent()) {
+         Usuario usuario = usuarioOpt.get();
+         // Asegúrate de usar el getter correcto de tu entidad Usuario
+         return usuario.getUsu_pass().equals(password);
+      }
+      return false;
+   }
 
 }

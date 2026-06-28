@@ -26,7 +26,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int usuId;
-
+    private String role;
     private String usuEmail;
     private String usu_pass;
     @Column(name = "numrun", unique = true, nullable = false)
