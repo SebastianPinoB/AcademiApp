@@ -188,13 +188,30 @@ public class AnotacionService {
             System.err.println("La anotación se guardó, pero falló el envío del mensaje automático: " + e.getMessage());
         }
     }
-
+    
     private AnotacionDTO convertToDTO(Anotacion anotacion) {
+        String nombreAlumno = "N/A";
+        String nombreDocente = "N/A";
+
+        // Envolvemos en try-catch por si el microservicio de usuarios está apagado 
+        // o si un usuario fue eliminado, para que no se caiga toda la lista.
+        try {
+            nombreAlumno = obtenerNombreUsuario("/alumno/{id}", anotacion.getIdEstudiante(), "Alumno");
+        } catch (Exception e) {
+            nombreAlumno = "Alumno no encontrado";
+        }
+
+        try {
+            nombreDocente = obtenerNombreUsuario("/funcionario/{id}", anotacion.getIdDocente(), "Docente");
+        } catch (Exception e) {
+            nombreDocente = "Docente no encontrado";
+        }
+
         return new AnotacionDTO(
                 anotacion.getId(), anotacion.getAnotDesc(), anotacion.getTipo(),
                 anotacion.getFecha(), anotacion.getHora(),
                 anotacion.getIdEstudiante(), anotacion.getIdDocente(),
-                "N/A", "N/A"
+                nombreAlumno, nombreDocente
         );
     }
 

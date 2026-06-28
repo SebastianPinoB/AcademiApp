@@ -3,6 +3,10 @@ package com.example.AcademiApp.models.dtos;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ActaDTO(
     Integer idActa,
     LocalDate fecha,

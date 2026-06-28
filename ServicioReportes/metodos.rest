@@ -58,3 +58,8 @@ Content-Type: application/json
   "observaciones": "Reunión liderada por UTP.",
   "idFuncionario": 3
 }
+
+###
+###
+GET {{baseUrl}}/actas/generales
+Accept: application/json

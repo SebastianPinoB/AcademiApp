@@ -1,6 +1,8 @@
 package com.example.AcademiApp.services;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,41 +20,44 @@ import lombok.RequiredArgsConstructor;
 public class CitaService {
 
     private final BitacoraCitaApoderadoRepository citaRepository;
-    
-    // Inyectamos el WebClient apuntando al endpoint de alumnos
     private final WebClient alumnoWeb; 
 
+    // ==========================================
+    // 1. GET - OBTENER TODAS LAS CITAS
+    // ==========================================
+    public List<CitaDTO> getAllCitas() {
+        return citaRepository.findAll().stream().map(cita -> {
+            // Buscamos el nombre en tiempo real por cada registro
+            String nombreEstudiante = obtenerNombreEstudiante(cita.getUsuId());
+            
+            return new CitaDTO(
+                    cita.getIdBitacoraCitaApoderado(),
+                    cita.getFecha(),
+                    cita.getHora(),
+                    cita.getDescripcion(),
+                    cita.getTemasTratados(),
+                    cita.getAcuerdos(),
+                    cita.getObservaciones(),
+                    nombreEstudiante, // Nombre real en vez del nulo
+                    cita.isBitFirmaApo(),
+                    cita.getFirmaDocente()
+            );
+        }).collect(Collectors.toList());
+    }
+
+    // ==========================================
+    // 2. POST - REGISTRAR NUEVA CITA
+    // ==========================================
     public CitaDTO registrarCita(CitaRequest request) {
         
-        String nombreEstudianteReal = "Estudiante Desconocido";
+        // Validar que el estudiante exista antes de guardar
+        String nombreEstudianteReal = obtenerNombreEstudiante(request.getUsuId());
         
-        try {
-            // Petición al microservicio de Usuarios (Endpoint Alumno)
-            Object respuestaAlumno = alumnoWeb.get()
-                    .uri("/{id}", request.getUsuId())
-                    .retrieve()
-                    .bodyToMono(Object.class)
-                    .block();
-            
-            if (respuestaAlumno != null) {
-                // 1. Casteamos la respuesta a un Map
-                @SuppressWarnings("unchecked")
-                Map<String, Object> mapaAlumno = (Map<String, Object>) respuestaAlumno;
-                
-                // 2. Extraemos el nombre y apellido (basado en tu EstudianteResponse)
-                String nombre = (String) mapaAlumno.get("nombre");
-                String apellido = (String) mapaAlumno.get("apellidoPaterno");
-                
-                nombreEstudianteReal = nombre + " " + apellido;
-            }
-        } catch (WebClientResponseException.NotFound e) {
-            // Si el estudiante no existe, detenemos el proceso
+        if (nombreEstudianteReal.equals("Estudiante Desconocido") || nombreEstudianteReal.equals("Error de Conexión")) {
             throw new IllegalArgumentException("No se pudo registrar la cita: El estudiante con ID " + request.getUsuId() + " no existe.");
         }
 
-        // Guardar en la Base de Datos local
         BitacoraCitaApoderado nuevaCita = new BitacoraCitaApoderado();
-        
         nuevaCita.setFecha(request.getFecha());
         nuevaCita.setHora(request.getHora());
         nuevaCita.setDescripcion(request.getDescripcion());
@@ -65,18 +70,38 @@ public class CitaService {
 
         BitacoraCitaApoderado guardada = citaRepository.save(nuevaCita);
 
-        // Retornar DTO enriquecido
         return new CitaDTO(
                 guardada.getIdBitacoraCitaApoderado(),
-                guardada.getFecha(),
-                guardada.getHora(),
-                guardada.getDescripcion(),
-                guardada.getTemasTratados(),
-                guardada.getAcuerdos(),
-                guardada.getObservaciones(),
-                nombreEstudianteReal, // Aquí enviamos el dato que fuimos a buscar al otro microservicio
-                guardada.isBitFirmaApo(),
-                guardada.getFirmaDocente()
+                guardada.getFecha(), guardada.getHora(),
+                guardada.getDescripcion(), guardada.getTemasTratados(),
+                guardada.getAcuerdos(), guardada.getObservaciones(),
+                nombreEstudianteReal, 
+                guardada.isBitFirmaApo(), guardada.getFirmaDocente()
         );
+    }
+
+    // ==========================================
+    // MÉTODO PRIVADO DE INTEGRACIÓN HTTP (Helper)
+    // ==========================================
+    private String obtenerNombreEstudiante(Integer usuId) {
+        if (usuId == null) return "Estudiante Desconocido";
+        
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> mapaAlumno = alumnoWeb.get().uri("/{id}", usuId)
+                    .retrieve().bodyToMono(Map.class).block();
+            
+            if (mapaAlumno != null) {
+                String nombre = mapaAlumno.get("nombre") != null ? (String) mapaAlumno.get("nombre") : "";
+                String apellido = mapaAlumno.get("apellidoPaterno") != null ? " " + mapaAlumno.get("apellidoPaterno") : "";
+                
+                return (nombre + apellido).trim();
+            }
+        } catch (WebClientResponseException.NotFound e) {
+            return "Estudiante Desconocido";
+        } catch (Exception e) {
+            return "Error de Conexión";
+        }
+        return "Estudiante Desconocido";
     }
 }
