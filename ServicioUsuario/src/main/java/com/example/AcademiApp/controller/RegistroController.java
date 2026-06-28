@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.AcademiApp.model.Entities.Apoderado;
 import com.example.AcademiApp.model.Entities.Estudiante;
+import com.example.AcademiApp.model.Entities.Usuario;
 import com.example.AcademiApp.model.request.RegistroDirectivoRequest;
 import com.example.AcademiApp.model.request.RegistroDocenteRequest;
 import com.example.AcademiApp.model.request.RegistroInspectorRequest;
@@ -23,6 +24,7 @@ import com.example.AcademiApp.model.request.RegistroRequest;
 import com.example.AcademiApp.model.response.EstudianteResponse;
 import com.example.AcademiApp.model.response.FuncionarioResponse;
 import com.example.AcademiApp.service.RegistroService;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/registro")
@@ -31,6 +33,11 @@ public class RegistroController {
    @Autowired
    private RegistroService registroService;
 
+   @GetMapping("/usuario")
+   public ResponseEntity<List<Usuario>> obtenerTodosUsuarios() {
+      List<Usuario> usuarios = registroService.obtenerTodosUsuarios();
+      return ResponseEntity.ok(usuarios);
+   }
    // ==========================================
    // 1. ENDPOINTS: ALUMNOS Y APODERADOS
    // ==========================================
@@ -54,7 +61,8 @@ public class RegistroController {
    }
 
    @PutMapping("/alumno/{id}")
-   public ResponseEntity<Void> actualizarAlumnoYApoderado(@PathVariable int id, @RequestBody RegistroRequest datosNuevos) {
+   public ResponseEntity<Void> actualizarAlumnoYApoderado(@PathVariable int id,
+         @RequestBody RegistroRequest datosNuevos) {
       registroService.actualizarAlumnoYApoderado(id, datosNuevos);
       return ResponseEntity.noContent().build();
    }
@@ -129,7 +137,6 @@ public class RegistroController {
       FuncionarioResponse funcionario = registroService.obtenerFuncionario(id);
       return ResponseEntity.ok(funcionario);
    }
-
 
    // ==========================================
    // 4. ENDPOINTS: EDICIÓN Y ELIMINACIÓN

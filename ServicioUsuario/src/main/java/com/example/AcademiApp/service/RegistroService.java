@@ -1,6 +1,7 @@
 package com.example.AcademiApp.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ import com.example.AcademiApp.repository.DocenteRepository;
 import com.example.AcademiApp.repository.EstudianteRepository;
 import com.example.AcademiApp.repository.FuncionarioRepository;
 import com.example.AcademiApp.repository.InspectorRespository;
+import com.example.AcademiApp.repository.UsuarioRepository;
 import com.example.AcademiApp.repository.direccion.CiudadRepository;
 import com.example.AcademiApp.repository.direccion.ComunaRepository;
 import com.example.AcademiApp.repository.direccion.PaisRepository;
@@ -66,6 +68,8 @@ public class RegistroService {
    private CiudadRepository ciudadRepository;
    @Autowired
    private ComunaRepository comunaRepository;
+   @Autowired
+   private UsuarioRepository usuarioRepository;
 
    // Crea usuarios y apoderados
    @Transactional
@@ -85,7 +89,7 @@ public class RegistroService {
       Apoderado apoderado = apoderadoRespository.findByNumrun(datosApo.numrun()).orElseGet(() -> {
          // Si NO existe, creamos uno nuevo
          Apoderado nuevoApo = new Apoderado();
-         nuevoApo.setUsu_email(datosApo.email());
+         nuevoApo.setUsuEmail(datosApo.email());
          nuevoApo.setUsu_pass(datosApo.password());
          nuevoApo.setNumrun(datosApo.numrun());
          nuevoApo.setUsu_dvrun(datosApo.dvRun());
@@ -107,7 +111,7 @@ public class RegistroService {
       // Creacion alumno
       RegistroEstudianteRequest alu = nuevoRegistro.alumno();
       Estudiante estudiante = new Estudiante();
-      estudiante.setUsu_email(alu.email());
+      estudiante.setUsuEmail(alu.email());
       estudiante.setUsu_pass(alu.password());
       estudiante.setNumrun(alu.numrun());
       estudiante.setUsu_dvrun(alu.dvRun());
@@ -156,6 +160,10 @@ public class RegistroService {
       }
    }
 
+   public List<Usuario> obtenerTodosUsuarios(){
+      return usuarioRepository.findAll();
+   }
+
    // Buscar todos
    public List<Estudiante> obtenerTodosEstudiantes() {
       return estudianteRepository.findAll();
@@ -178,7 +186,7 @@ public class RegistroService {
             est.getUsuId(),
             est.getUsu_nombre(),
             est.getUsu_appaterno(),
-            est.getUsu_email(),
+            est.getUsuEmail(),
             est.getEstu_parentesco(),
             est.getApoderado() != null
                   ? est.getApoderado().getUsu_nombre()
@@ -199,7 +207,7 @@ public class RegistroService {
       est.setUsu_nombre(datosAlu.nombre());
       est.setUsu_appaterno(datosAlu.apellidoPaterno());
       est.setUsu_apmaterno(datosAlu.apellidoMaterno());
-      est.setUsu_email(datosAlu.email());
+      est.setUsuEmail(datosAlu.email());
 
       // Direcciones del Alumno
       if (datosAlu.direcciones() != null) {
@@ -228,7 +236,7 @@ public class RegistroService {
          nuevoApo.setUsu_nombre(datosApo.nombre());
          nuevoApo.setUsu_appaterno(datosApo.apellidoPaterno());
          nuevoApo.setUsu_apmaterno(datosApo.apellidoMaterno());
-         nuevoApo.setUsu_email(datosApo.email());
+         nuevoApo.setUsuEmail(datosApo.email());
 
          // Direcciones del nuevo Apoderado
          if (datosApo.direcciones() != null) {
@@ -246,7 +254,7 @@ public class RegistroService {
          apoActual.setUsu_nombre(datosApo.nombre());
          apoActual.setUsu_appaterno(datosApo.apellidoPaterno());
          apoActual.setUsu_apmaterno(datosApo.apellidoMaterno());
-         apoActual.setUsu_email(datosApo.email());
+         apoActual.setUsuEmail(datosApo.email());
 
          if (datosApo.direcciones() != null) {
             apoActual.getDirecciones().clear();
@@ -290,7 +298,7 @@ public class RegistroService {
       return new FuncionarioResponse(
             f.getUsuId(),
             nombreCompleto,
-            f.getUsu_email(),
+            f.getUsuEmail(),
             cargo,
             especialidad
       );
@@ -302,7 +310,7 @@ public class RegistroService {
       validarDuplicadoFuncionario(req.numrun());
 
       Docente docente = new Docente();
-      docente.setUsu_email(req.email());
+      docente.setUsuEmail(req.email());
       docente.setUsu_pass(req.password());
       docente.setNumrun(req.numrun());
       docente.setUsu_dvrun(req.dvRun());
@@ -329,7 +337,7 @@ public class RegistroService {
       validarDuplicadoFuncionario(req.numrun());
 
       Directivo directivo = new Directivo();
-      directivo.setUsu_email(req.email());
+      directivo.setUsuEmail(req.email());
       directivo.setUsu_pass(req.password());
       directivo.setNumrun(req.numrun());
       directivo.setUsu_dvrun(req.dvRun());
@@ -357,7 +365,7 @@ public class RegistroService {
 
       Inspector inspector = new Inspector();
 
-      inspector.setUsu_email(req.email());
+      inspector.setUsuEmail(req.email());
       inspector.setUsu_pass(req.password());
       inspector.setNumrun(req.numrun());
       inspector.setUsu_dvrun(req.dvRun());
@@ -402,7 +410,7 @@ public class RegistroService {
          return new FuncionarioResponse(
                f.getUsuId(),
                nombreCompleto,
-               f.getUsu_email(),
+               f.getUsuEmail(),
                cargo,
                especialidad);
       }).toList();
@@ -421,7 +429,7 @@ public class RegistroService {
       docente.setUsu_snombre(req.segundoNombre());
       docente.setUsu_appaterno(req.apellidoPaterno());
       docente.setUsu_apmaterno(req.apellidoMaterno());
-      docente.setUsu_email(req.email());
+      docente.setUsuEmail(req.email());
 
       // 2. Limpiar y procesar nuevas direcciones si vienen en el request
       if (req.direcciones() != null) {
@@ -449,7 +457,7 @@ public class RegistroService {
       inspector.setUsu_snombre(req.segundoNombre());
       inspector.setUsu_appaterno(req.apellidoPaterno());
       inspector.setUsu_apmaterno(req.apellidoMaterno());
-      inspector.setUsu_email(req.email());
+      inspector.setUsuEmail(req.email());
 
       if (req.direcciones() != null) {
          inspector.getDirecciones().clear();
@@ -475,7 +483,7 @@ public class RegistroService {
       directivo.setUsu_snombre(req.segundoNombre());
       directivo.setUsu_appaterno(req.apellidoPaterno());
       directivo.setUsu_apmaterno(req.apellidoMaterno());
-      directivo.setUsu_email(req.email());
+      directivo.setUsuEmail(req.email());
 
       if (req.direcciones() != null) {
          directivo.getDirecciones().clear();
@@ -515,7 +523,7 @@ public class RegistroService {
          return new FuncionarioResponse(
                d.getUsuId(),
                nombreCompleto,
-               d.getUsu_email(),
+               d.getUsuEmail(),
                "DOCENTE",
                d.getDocen_espec() 
          );
@@ -533,7 +541,7 @@ public class RegistroService {
          return new FuncionarioResponse(
                i.getUsuId(),
                nombreCompleto,
-               i.getUsu_email(),
+               i.getUsuEmail(),
                "INSPECTOR",
                i.getInspec_nivel() 
          );
@@ -551,7 +559,7 @@ public class RegistroService {
          return new FuncionarioResponse(
                d.getUsuId(),
                nombreCompleto,
-               d.getUsu_email(),
+               d.getUsuEmail(),
                "DIRECTIVO",
                d.getDirect_cargo() 
          );
@@ -624,5 +632,16 @@ public class RegistroService {
          usuario.agregarDireccion(dir);
       }
    }
+
+   public boolean validarUsuario(String email, String password) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuEmail(email);
+
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            // Asegúrate de usar el getter correcto de tu entidad Usuario
+            return usuario.getUsu_pass().equals(password); 
+        }
+        return false;
+    }
 
 }
