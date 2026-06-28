@@ -14,25 +14,39 @@ public class UsuarioClientService {
 
     private static final String USUARIO_BASE_URL = "http://localhost:5000";
 
-    /**
-     * Verifica que un usuario exista en CUALQUIER rol (alumno, apoderado o funcionario).
-     * Prueba cada endpoint hasta encontrar coincidencia.
-     */
     public void validarUsuarioExiste(int usuarioId) {
-        if (intentarObtener("/registro/alumno/" + usuarioId)) return;
-        if (intentarObtener("/registro/apoderado/" + usuarioId)) return;
-        if (intentarObtener("/registro/funcionario/" + usuarioId)) return;
+        if (intentarObtenerPorId("/registro/alumno/" + usuarioId)) return;
+        if (intentarObtenerPorId("/registro/funcionario/" + usuarioId)) return;
+        if (existeEnListaApoderados(usuarioId)) return;
 
         throw new IllegalArgumentException(
             "No existe un usuario con ID: " + usuarioId + " en el Servicio de Usuarios."
         );
     }
 
-    private boolean intentarObtener(String path) {
+    private boolean intentarObtenerPorId(String path) {
         try {
             restTemplate.getForObject(USUARIO_BASE_URL + path, UsuarioExternoDTO.class);
             return true;
         } catch (HttpClientErrorException.NotFound e) {
+            return false;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "No se pudo conectar con el Servicio de Usuarios. Verifica que esté corriendo en el puerto 5000."
+            );
+        }
+    }
+
+    private boolean existeEnListaApoderados(int usuarioId) {
+        try {
+            UsuarioExternoDTO[] apoderados = restTemplate.getForObject(
+                USUARIO_BASE_URL + "/registro/apoderado", UsuarioExternoDTO[].class
+            );
+            if (apoderados == null) return false;
+
+            for (UsuarioExternoDTO a : apoderados) {
+                if (a.getUsuId() == usuarioId) return true;
+            }
             return false;
         } catch (Exception e) {
             throw new IllegalArgumentException(

@@ -2,6 +2,7 @@ package com.example.AcademiApp.controller;
 
 import com.example.AcademiApp.model.entities.MuroDigital;
 import com.example.AcademiApp.model.request.MuroDigitalRequest;
+import com.example.AcademiApp.service.GestionAcademicaClientService;
 import com.example.AcademiApp.service.MuroDigitalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,18 @@ public class MuroDigitalController {
 
     @Autowired
     private MuroDigitalService muroDigitalService;
+
+    @Autowired
+    private GestionAcademicaClientService gestionAcademicaClientService;
+
+    @GetMapping("/asignaturas-disponibles")
+    public ResponseEntity<?> obtenerAsignaturas() {
+        try {
+            return ResponseEntity.ok(gestionAcademicaClientService.obtenerAsignaturas());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage());
+        }
+    }
 
     @PostMapping
     public ResponseEntity<?> publicar(@Valid @RequestBody MuroDigitalRequest request) {

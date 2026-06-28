@@ -3,6 +3,8 @@ package com.example.AcademiApp.controller;
 import com.example.AcademiApp.model.entities.CalendarioEstudiantil;
 import com.example.AcademiApp.model.request.CalendarioEstudiantilRequest;
 import com.example.AcademiApp.service.CalendarioEstudiantilService;
+import com.example.AcademiApp.service.GestionAcademicaClientService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,27 @@ public class CalendarioEstudiantilController {
     @Autowired
     private CalendarioEstudiantilService calendarioService;
 
+    @Autowired
+    private GestionAcademicaClientService gestionAcademicaClientService;
+
+    @GetMapping("/cursos-disponibles")
+    public ResponseEntity<?> obtenerCursos() {
+        try {
+            return ResponseEntity.ok(gestionAcademicaClientService.obtenerCursos());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/asignaturas-disponibles")
+    public ResponseEntity<?> obtenerAsignaturas() {
+        try {
+            return ResponseEntity.ok(gestionAcademicaClientService.obtenerAsignaturas());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage());
+        }
+    }
+    
     @PostMapping
     public ResponseEntity<?> crear(@Valid @RequestBody CalendarioEstudiantilRequest request) {
         try {
