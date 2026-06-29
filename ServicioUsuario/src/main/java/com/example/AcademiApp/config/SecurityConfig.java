@@ -19,30 +19,36 @@ import com.example.AcademiApp.security.JwtFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
    @Autowired
    private JwtFilter jwtFilter;
 
    @Bean
-   public SecurityFilterChain securityFilterChain(HttpSecurity http)
-         throws Exception {
+   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
       http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                  .requestMatchers("/api/auth/**").permitAll()
-                  .requestMatchers(HttpMethod.POST, "/registro/alumno").hasRole("ADMIN")
                   .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                  // Aquí definimos los roles para rutas específicas
-                  // .requestMatchers("/api/alumnos/**").hasRole("ALUMNO")
-                  // .requestMatchers("/api/profesores/**").hasRole("PROFESOR")
-                  .requestMatchers("/registro/usuario/**").hasRole("ALUMNO")
+                  .requestMatchers("/api/auth/**").permitAll()
+                  .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**", "/*.html").permitAll()
 
-                  // Cualquier otra cosa requiere estar autenticado
-                  .anyRequest().authenticated());
+                  .requestMatchers(HttpMethod.GET, "/registro/alumno/**").permitAll()
+                  .requestMatchers(HttpMethod.GET, "/registro/apoderado").permitAll()
+                  .requestMatchers(HttpMethod.GET, "/registro/funcionario/**").permitAll()
 
-      http
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                  .requestMatchers(HttpMethod.POST, "/registro/alumno").hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.POST, "/registro/funcionario/**").hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.PUT, "/registro/funcionario/**").hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.DELETE, "/registro/funcionario/**").hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.PUT, "/registro/alumno/**").hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.DELETE, "/registro/alumno/**").hasRole("ADMIN")
+
+                  .anyRequest().authenticated()
+            );
+
+      http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
       return http.build();
    }
@@ -50,7 +56,6 @@ public class SecurityConfig {
    @Bean
    public PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
-
    }
 
    @Bean

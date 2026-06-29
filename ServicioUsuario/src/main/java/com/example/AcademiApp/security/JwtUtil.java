@@ -14,7 +14,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
    private static final String SECRET = "techstore-clavesecreta23-faltaban-caracteres"; // 32 caracteres
-   private static final long EXPIRATION = 3600000; // en milisegundos ( 1 hora)
+   private static final long EXPIRATION = 86400000; // en milisegundos ( 1 hora) 86400000 24hrs
 
    private Key getKey() {
       return Keys.hmacShaKeyFor(SECRET.getBytes());

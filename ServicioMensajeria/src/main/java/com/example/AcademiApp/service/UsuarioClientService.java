@@ -26,31 +26,33 @@ public class UsuarioClientService {
 
     private boolean intentarObtenerPorId(String path) {
         try {
-            restTemplate.getForObject(USUARIO_BASE_URL + path, UsuarioExternoDTO.class);
+            restTemplate.getForObject(USUARIO_BASE_URL + path, Object.class);
             return true;
         } catch (HttpClientErrorException.NotFound e) {
             return false;
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                "No se pudo conectar con el Servicio de Usuarios. Verifica que esté corriendo en el puerto 5000."
+                "No se pudo conectar con el Servicio de Usuarios. Error: " + e.getMessage()
             );
         }
     }
 
     private boolean existeEnListaApoderados(int usuarioId) {
         try {
-            UsuarioExternoDTO[] apoderados = restTemplate.getForObject(
-                USUARIO_BASE_URL + "/registro/apoderado", UsuarioExternoDTO[].class
+            java.util.List apoderados = restTemplate.getForObject(
+                USUARIO_BASE_URL + "/registro/apoderado", java.util.List.class
             );
             if (apoderados == null) return false;
 
-            for (UsuarioExternoDTO a : apoderados) {
-                if (a.getUsuId() == usuarioId) return true;
+            for (Object a : apoderados) {
+                java.util.Map<String, Object> map = (java.util.Map<String, Object>) a;
+                Object usuId = map.get("usuId");
+                if (usuId != null && Integer.parseInt(usuId.toString()) == usuarioId) return true;
             }
             return false;
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                "No se pudo conectar con el Servicio de Usuarios. Verifica que esté corriendo en el puerto 5000."
+                "No se pudo conectar con el Servicio de Usuarios. Error: " + e.getMessage()
             );
         }
     }
