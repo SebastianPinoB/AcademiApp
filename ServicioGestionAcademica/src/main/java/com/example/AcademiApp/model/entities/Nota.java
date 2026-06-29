@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,9 +23,15 @@ public class Nota {
    private int notaId;
    private float notaValor;
    private Date notaFecha;
+   private int estudianteId;
 
    @ManyToOne
    @JsonIgnore
    @JoinColumn(name = "eva_id")
    private Evaluacion evaluacion;
+
+   public int getEvaluacionId() {
+      return evaluacion != null ? evaluacion.getEvaId() : 0;
+   }
+   
 }
