@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.AcademiApp.model.Entities.Apoderado;
+import com.example.AcademiApp.model.Entities.Directivo;
+import com.example.AcademiApp.model.Entities.Docente;
 import com.example.AcademiApp.model.Entities.Estudiante;
+import com.example.AcademiApp.model.Entities.Inspector;
 import com.example.AcademiApp.model.Entities.Usuario;
 import com.example.AcademiApp.model.request.RegistroDirectivoRequest;
 import com.example.AcademiApp.model.request.RegistroDocenteRequest;
@@ -23,6 +27,10 @@ import com.example.AcademiApp.model.request.RegistroInspectorRequest;
 import com.example.AcademiApp.model.request.RegistroRequest;
 import com.example.AcademiApp.model.response.EstudianteResponse;
 import com.example.AcademiApp.model.response.FuncionarioResponse;
+import com.example.AcademiApp.repository.DirectivoRespository;
+import com.example.AcademiApp.repository.DocenteRepository;
+import com.example.AcademiApp.repository.FuncionarioRepository;
+import com.example.AcademiApp.repository.InspectorRespository;
 import com.example.AcademiApp.service.RegistroService;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -32,6 +40,15 @@ public class RegistroController {
 
    @Autowired
    private RegistroService registroService;
+
+   @Autowired
+   private DirectivoRespository directivoRespository;
+
+   @Autowired
+   private DocenteRepository docenteRepository;
+
+   @Autowired
+   private InspectorRespository inspectorRespository;
 
    @GetMapping("/usuario")
    public ResponseEntity<List<Usuario>> obtenerTodosUsuarios() {
@@ -164,5 +181,32 @@ public class RegistroController {
    public ResponseEntity<Void> eliminarFuncionario(@PathVariable int id) {
       registroService.eliminarFuncionario(id);
       return ResponseEntity.noContent().build();
+   }
+
+   @GetMapping("/funcionario/docente/{id}")
+   public ResponseEntity<?> obtenerDocente(@PathVariable int id) {
+      try {
+         return ResponseEntity.ok(registroService.obtenerDocente(id));
+      } catch (ResponseStatusException e) {
+         return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+      }
+   }
+
+   @GetMapping("/funcionario/inspector/{id}")
+   public ResponseEntity<?> obtenerInspector(@PathVariable int id) {
+      try {
+         return ResponseEntity.ok(registroService.obtenerInspector(id));
+      } catch (ResponseStatusException e) {
+         return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+      }
+   }
+
+   @GetMapping("/funcionario/directivo/{id}")
+   public ResponseEntity<?> obtenerDirectivo(@PathVariable int id) {
+      try {
+         return ResponseEntity.ok(registroService.obtenerDirectivo(id));
+      } catch (ResponseStatusException e) {
+         return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+      }
    }
 }

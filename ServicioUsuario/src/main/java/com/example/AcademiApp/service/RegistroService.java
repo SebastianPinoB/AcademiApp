@@ -106,7 +106,6 @@ public class RegistroService {
 
          String passwordCifrado = passwordEncoder.encode(datosApo.password());
          nuevoApo.setUsu_pass(passwordCifrado);
-         
 
          nuevoApo.setRole("APODERADO");
 
@@ -670,6 +669,24 @@ public class RegistroService {
          return usuario.getUsu_pass().equals(password);
       }
       return false;
+   }
+
+   public Docente obtenerDocente(int id) {
+      return docenteRepository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Docente no encontrado con ID: " + id));
+   }
+
+   public Inspector obtenerInspector(int id) {
+      return inspectorRespository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Inspector no encontrado con ID: " + id));
+   }
+
+   public Directivo obtenerDirectivo(int id) {
+      return directivoRespository.findById(id)
+            .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Directivo no encontrado con ID: " + id));
    }
 
 }
